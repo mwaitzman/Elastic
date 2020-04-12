@@ -29,5 +29,7 @@ object NodeRegistry {
 		nodes.add("frequency_1")
 		nodes.add("math_1")
 		nodes.add("oscilloscope_1")
+		nodes.add("value_1")
+		nodes.add("to_audio_1")
 	}
 }

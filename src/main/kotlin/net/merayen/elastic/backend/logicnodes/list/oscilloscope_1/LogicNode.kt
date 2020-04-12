@@ -48,8 +48,6 @@ class LogicNode : BaseLogicNode() {
 				maxValue += (data.maxValue - maxValue) / 2
 				minValue += (data.minValue - minValue) / 2
 
-				println("$maxValue $minValue")
-
 				amplitude = 1 / max(0.1f, maxValue - minValue)
 				offset = (-(maxValue - (maxValue - minValue) / 2))*amplitude
 				trigger = -offset/amplitude + (maxValue - minValue) / 2

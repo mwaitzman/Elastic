@@ -29,11 +29,17 @@ class UI : UINode() {
 		}
 	})
 
+	private val dropDownItems = ArrayList<DropDown.Item>()
+
+	init {
+		for (mode in Mode.values()) {
+			val item = DropDown.Item(Label(mode.name), TextContextMenuItem(mode.name))
+			dropDownItems.add(item)
+			dropDown.addMenuItem(item)
+		}
+	}
 	override fun onInit() {
 		super.onInit()
-
-		for (mode in Mode.values())
-			dropDown.addMenuItem(DropDown.Item(Label(mode.name), TextContextMenuItem(mode.name)))
 
 		dropDown.translation.x = 20f
 		dropDown.translation.y = 20f
@@ -75,10 +81,10 @@ class UI : UINode() {
 				override fun onButton(offset: Int) {}
 
 			})
-			slider.translation.x = 20f
-			slider.translation.y = port.translation.y - 10f
-			add(slider)
+			//add(slider)
 			val portParameter = PortParameter(this, port, slider, UIObject())
+			portParameter.translation.x = 20f
+			portParameter.translation.y = port.translation.y - 10f
 			add(portParameter)
 			portParameters.add(portParameter)
 		}
@@ -88,7 +94,6 @@ class UI : UINode() {
 		if (port.name != "out") {
 			val portParameter = portParameters.firstOrNull { it.port === port }
 			if (portParameter != null) {
-				remove(portParameter.notConnected)
 				remove(portParameter)
 				portParameters.remove(portParameter)
 			}
@@ -100,12 +105,16 @@ class UI : UINode() {
 
 		val aValue = properties.aValue
 		val bValue = properties.bValue
+		val mode = properties.mode
 
-		if (aValue != null)
+		if (aValue != null && portParameters.size > 0)
 			(portParameters[0].notConnected as ParameterSlider).value = (aValue / 1000f).pow(1/2f).toDouble()
 
-		if (bValue != null)
+		if (bValue != null && portParameters.size > 1)
 			(portParameters[1].notConnected as ParameterSlider).value = (bValue / 1000f).pow(1/2f).toDouble()
+
+		if (mode != null)
+			dropDown.setViewItem(dropDownItems.first { (it.dropdownItem as Label).text == mode })
 	}
 
 	override fun onData(message: NodeDataMessage) {}
