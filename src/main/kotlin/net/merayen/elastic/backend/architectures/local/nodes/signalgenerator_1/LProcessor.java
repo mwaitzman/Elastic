@@ -30,7 +30,6 @@ public class LProcessor extends LocalProcessor implements SessionKeeper {
 	private boolean sustain;
 	private float volume;
 	private short[] active_tangent;
-	private float velocity;
 
 	private double pos = new Random().nextDouble() * Math.PI * 2;
 
@@ -40,8 +39,6 @@ public class LProcessor extends LocalProcessor implements SessionKeeper {
 
 		@Override
 		protected void onKeyDown(short tangent, float _velocity) {
-			velocity = _velocity;
-
 			if (!sustain)
 				keys_down.add(getCurrentMidiPacket());
 
