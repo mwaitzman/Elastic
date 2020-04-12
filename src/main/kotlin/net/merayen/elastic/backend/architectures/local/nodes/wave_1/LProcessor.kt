@@ -1,8 +1,9 @@
 package net.merayen.elastic.backend.architectures.local.nodes.wave_1
 
 import net.merayen.elastic.backend.architectures.local.LocalProcessor
-import net.merayen.elastic.backend.architectures.local.lets.AudioOutlet
 import net.merayen.elastic.backend.architectures.local.lets.MidiInlet
+import net.merayen.elastic.backend.architectures.local.lets.SignalInlet
+import net.merayen.elastic.backend.architectures.local.lets.SignalOutlet
 import net.merayen.elastic.backend.logicnodes.list.wave_1.Properties
 import net.merayen.elastic.backend.midi.MidiState
 import net.merayen.elastic.backend.util.AudioUtil
@@ -50,11 +51,9 @@ class LProcessor : LocalProcessor() {
 		if (frameFinished())
 			return
 
-		val out = getOutlet("audio") ?: return
+		val out = getOutlet("out") as? SignalOutlet?: return
 
 		val frequency = getInlet("frequency")
-
-		out as AudioOutlet
 
 		if (frequency is MidiInlet) {
 			for ((position, midiFrame) in frequency.outlet.midi) {
@@ -62,38 +61,40 @@ class LProcessor : LocalProcessor() {
 				for (midiPacket in midiFrame)
 					midiState.handle(midiPacket, null)
 			}
+		} else if (frequency is SignalInlet) {
+			for (i in 0 until buffer_size)
+				frequencyCoefficients[i] = frequency.outlet.signal[i] / sampleRate
 		}
 
 		val factor = 440f / sampleRate // TODO take frequency from input
 
-		val audio = out.audio[0]
+		val signal = out.signal
 
-		val type = type
 		when (type) {
 			Properties.Type.NOISE -> for (i in 0 until buffer_size) {
 				val c = frequencyCoefficients[i]
-				audio[i] = if (c > 0) (Math.random().toFloat() - 0.5f) * 0.1f else 0f //noise[(pos % noise.size).toInt()] * 0.1f
+				signal[i] = if (c > 0) (Math.random().toFloat() - 0.5f) * 0.1f else 0f //noise[(pos % noise.size).toInt()] * 0.1f
 			}
 			Properties.Type.SINE -> for (i in 0 until buffer_size) {
 				val c = frequencyCoefficients[i]
-				audio[i] = if (c > 0) sin(pos * PI * 2).toFloat() * 0.1f else 0f // Should we use a wavetable + resampler for performance? Or?
+				signal[i] = if (c > 0) sin(pos * PI * 2).toFloat() * 0.1f else 0f // Should we use a wavetable + resampler for performance? Or?
 				pos += c
 			}
 			Properties.Type.SQUARE -> for (i in 0 until buffer_size) {
 				val c = frequencyCoefficients[i]
 				if (c > 0)
-					audio[i] = if (pos % 2 < 1f) 0.1f else -0.1f
+					signal[i] = if (pos % 2 < 1f) 0.1f else -0.1f
 				else
-					audio[i] = 0f
+					signal[i] = 0f
 				pos += c
 			}
 			Properties.Type.TRIANGLE -> for (i in 0 until buffer_size) {
 				val c = frequencyCoefficients[i]
 				if (c > 0) {
 					val p = (pos + 0.25) % 1.0
-					audio[i] = ((if (p % 1 >= 0.5) p else 1.0 - p).toFloat() * 4 - 3) * 0.1f
+					signal[i] = ((if (p % 1 >= 0.5) p else 1.0 - p).toFloat() * 4 - 3) * 0.1f
 				} else {
-					audio[i] = 0f
+					signal[i] = 0f
 				}
 				pos += c
 			}
@@ -101,14 +102,14 @@ class LProcessor : LocalProcessor() {
 				val c = frequencyCoefficients[i]
 				if (c > 0) {
 					val p = (pos + 0.5) % 1
-					audio[i] = (p * 2 - 1).toFloat() * 0.1f
+					signal[i] = (p * 2 - 1).toFloat() * 0.1f
 				} else {
-					audio[i] = 0f
+					signal[i] = 0f
 				}
 				pos += c
 			}
 			else -> for (i in 0 until buffer_size)
-				audio[i] = 0f
+				signal[i] = 0f
 		}
 
 		out.push()

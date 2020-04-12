@@ -43,7 +43,7 @@ class UI : UINode() {
 			port.translation.x = 0f
 			port.translation.y = 20f
 
-		} else if (port.name == "audio") {
+		} else if (port.name == "out") {
 			port.translation.x = layoutWidth
 			port.translation.y = 20f
 		}
