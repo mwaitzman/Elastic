@@ -2,6 +2,7 @@ package net.merayen.elastic.backend.architectures.local.nodes.value_1
 
 import net.merayen.elastic.backend.architectures.local.LocalProcessor
 import net.merayen.elastic.backend.architectures.local.lets.SignalOutlet
+import kotlin.math.PI
 
 class LProcessor : LocalProcessor() {
 	private var currentTime = 0.0

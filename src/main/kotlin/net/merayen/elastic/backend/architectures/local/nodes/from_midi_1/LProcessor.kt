@@ -75,10 +75,8 @@ class LProcessor : LocalProcessor(), SessionKeeper {
 
 			// Render any remaining packets
 			renderOutSignal(lastPosition, buffer_size)
-
 		}
 
-		println((getOutlet("frequency") as SignalOutlet).signal[buffer_size - 1])
 		getOutlet("frequency")?.push()
 		getOutlet("amplitude")?.push()
 		getOutlet("velocity")?.push()

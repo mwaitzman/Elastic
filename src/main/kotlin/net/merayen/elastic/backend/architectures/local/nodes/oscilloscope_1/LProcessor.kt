@@ -94,7 +94,7 @@ class LProcessor : LocalProcessor() {
 
 			if (trigging) {
 				if (inputPosition++ % sampleEvery == 0) {
-					samples[samplesPosition++] = sample * amplitude + offset
+					samples[samplesPosition++] = (sample + offset) * amplitude
 					if (samplesPosition == samples.size) { // Done sampling our frame
 						samplesPosition = -1
 						beenBelowTrigger = false
