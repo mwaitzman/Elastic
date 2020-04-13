@@ -26,8 +26,6 @@ public class LProcessor extends LocalProcessor {
 	private final PolySessions sessions = new PolySessions();
 	private final List<InterfaceNode> interfaces = new ArrayList<>();
 
-	private boolean frameDone;
-
 	// MIDI states
 	private short[] current_pitch;// = new short[] {MidiStatuses.PITCH_CHANGE, 0, 64};
 	private short[] current_sustain = new short[]{MidiStatuses.MOD_CHANGE, MidiControllers.SUSTAIN, 0};
@@ -58,49 +56,52 @@ public class LProcessor extends LocalProcessor {
 					output.audio[channel][i] = 0;
 		}
 
-		frameDone = false;
+		done = false;
+		processedInput = false;
 	}
+
+	private boolean done = false;
+	private boolean processedInput = false;
 
 	@Override
 	protected void onProcess() {
-		if (!available())
+		if (done || !available())
 			return;
 
-		if (frameFinished())
-			return;
-
-		if (input != null) {
-			if (!frameDone) {
-				frameDone = true;
-				int position = 0;
-				for (Map.Entry<Integer, MidiOutlet.MidiFrame> entry : input.outlet.midi.entrySet()) {
-					for (short[] n : entry.getValue()) {
-						if ((n[0] & 0b11110000) == MidiStatuses.KEY_DOWN) {
-							push_tangent(n[1], n[2], entry.getKey());
-						} else if ((n[0] & 0b11110000) == MidiStatuses.KEY_UP) { // Also detect KEY_DOWN with 0 velocity!
-							release_tangent(n[1], position);
-						} else if ((n[0] & 0b11110000) == MidiStatuses.MOD_CHANGE && n[1] == MidiControllers.SUSTAIN) {
-							current_sustain = n;
-							sendMidi(n, position);
-						} else if ((n[0] & 0b11110000) == MidiStatuses.PITCH_CHANGE) {
-							current_pitch = n;
-							sendMidi(n, position);
-						} else {
-							sendMidi(n, position); // TODO support multiple midi packets on the same sample (???)
-						}
+		if (input != null && !processedInput) {
+			int position = 0;
+			for (Map.Entry<Integer, MidiOutlet.MidiFrame> entry : input.outlet.midi.entrySet()) { // Read midi and apply
+				for (short[] n : entry.getValue()) {
+					if ((n[0] & 0b11110000) == MidiStatuses.KEY_DOWN) {
+						push_tangent(n[1], n[2], entry.getKey());
+					} else if ((n[0] & 0b11110000) == MidiStatuses.KEY_UP) { // Also detect KEY_DOWN with 0 velocity!
+						release_tangent(n[1], position);
+					} else if ((n[0] & 0b11110000) == MidiStatuses.MOD_CHANGE && n[1] == MidiControllers.SUSTAIN) {
+						current_sustain = n;
+						sendMidi(n, position);
+					} else if ((n[0] & 0b11110000) == MidiStatuses.PITCH_CHANGE) {
+						current_pitch = n;
+						sendMidi(n, position);
+					} else {
+						sendMidi(n, position); // TODO support multiple midi packets on the same sample (???)
 					}
 				}
-				// Push all input ports inside
-				pushInNodes();
 			}
-		} else {
-			pushInNodes(); // No data for in-nodes, we push anyway
+
+			// Push all input ports inside
+			pushInNodes();
+
+			processedInput = true;
 		}
 
-		forwardOutputData();
+		// Checks if all our inner nodes has received data, otherwise, try again later
+		if (!forwardOutputData())
+			return; // Not all our children nodes has pushed anything yet. We try again later
 
 		if (input != null)
 			removeInactiveSessions();
+
+		done = true;
 	}
 
 	private void push_tangent(short tangent, short velocity, int position) { // TODO support unison, and forwarding of channel number
@@ -154,8 +155,6 @@ public class LProcessor extends LocalProcessor {
 	private void sendMidi(short[] midi, int position) {
 		for (Outlet outlet : sessions.getInputOutlets()) {
 			((MidiOutlet) outlet).addMidi(position, midi);
-
-			outlet.push();
 		}
 	}
 
@@ -177,18 +176,19 @@ public class LProcessor extends LocalProcessor {
 	 * TODO distinguish on forward name, and session in case of deep voices
 	 */
 	private void pushInNodes() {
-		for (Outlet outlet : sessions.getInputOutlets())
+		List<Outlet> outlets = sessions.getInputOutlets();
+		for (Outlet outlet : outlets)
 			outlet.push();
 	}
 
-	private void forwardOutputData() {
+	private boolean forwardOutputData() {
 		List<OutputInterfaceNode> outputNodes = getOutputNodes();
 
 		if (outputNodes.isEmpty()) {
 			if (output != null)
 				output.push();
 
-			return; // No out-nodes. Nothing to do
+			return true; // No out-nodes. Nothing to do
 		}
 
 		// Ensure that all out-nodes has something
@@ -197,7 +197,7 @@ public class LProcessor extends LocalProcessor {
 				Inlet inlet = oin.getOutputInlet(session.session_id);
 				if (inlet instanceof AudioInlet) {
 					if (!inlet.available())
-						return; // One of the out-nodes has not finished processing yet
+						return false; // One of the out-nodes has not finished processing yet
 				}
 			}
 		}
@@ -221,6 +221,8 @@ public class LProcessor extends LocalProcessor {
 			}
 			output.push();
 		}
+
+		return true;
 	}
 
 	private List<OutputInterfaceNode> getOutputNodes() { // TODO implement caching
