@@ -8,7 +8,8 @@ import net.merayen.elastic.system.intercom.OutputFrameData
 
 class LogicNode : BaseLogicNode() {
 	override fun onInit() {
-		createOutputPort("time", Format.SIGNAL)
+		createOutputPort("elapsed", Format.SIGNAL)
+		createOutputPort("beat", Format.SIGNAL)
 	}
 
 	override fun onRemove() { }
