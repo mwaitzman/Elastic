@@ -35,7 +35,8 @@ internal class KeyboardStateTest {
 			KeyboardState.KeyStroke(
 				setOf(
 					KeyboardEvent.Key('a', 65, KeyboardEvent.Keys.A)
-				)
+				),
+				'a'
 			),
 			typed[0]
 		)
@@ -67,7 +68,8 @@ internal class KeyboardStateTest {
 					KeyboardEvent.Key('\u0000', 17, KeyboardEvent.Keys.CONTROL),
 					KeyboardEvent.Key('\u0000', 18, KeyboardEvent.Keys.ALT),
 					KeyboardEvent.Key('a', 65, KeyboardEvent.Keys.A)
-				)
+				),
+				'a'
 			),
 			typed[0]
 		)
@@ -93,7 +95,8 @@ internal class KeyboardStateTest {
 				setOf(
 					KeyboardEvent.Key('\u0000', 18, KeyboardEvent.Keys.ALT),
 					KeyboardEvent.Key('b', 66, KeyboardEvent.Keys.B)
-				)
+				),
+				'b'
 			),
 			typed[1]
 		)
@@ -105,7 +108,7 @@ internal class KeyboardStateTest {
 			KeyboardEvent.Key('A', 65, KeyboardEvent.Keys.SHIFT),
 			KeyboardEvent.Key('A', 65, KeyboardEvent.Keys.CONTROL),
 			KeyboardEvent.Key('A', 65, KeyboardEvent.Keys.A)
-		))
+		), 'A')
 
 		Assertions.assertFalse(ks.equalsKeys(setOf(
 			KeyboardEvent.Keys.CONTROL,
@@ -128,7 +131,7 @@ internal class KeyboardStateTest {
 
 	@Test
 	fun testEmptyEqualsKeys() {
-		Assertions.assertTrue(KeyboardState.KeyStroke(setOf()).equalsKeys(setOf()))
+		Assertions.assertTrue(KeyboardState.KeyStroke(setOf(), ' ').equalsKeys(setOf()))
 	}
 
 	private fun push(events: ArrayList<KeyboardEvent>): Set<KeyboardEvent> {
