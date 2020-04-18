@@ -76,11 +76,11 @@ public abstract class LocalNode {
 		return node.getID();
 	}
 
-	void compiler_setInfo(Supervisor supervisor, Node node, int sample_rate, int buffer_size) {
+	void compiler_setInfo(Supervisor supervisor, Node node, int sampleRate, int buffer_size) {
 		this.supervisor = supervisor;
 		this.netlist = supervisor.netlist;
 		this.node = node;
-		this.sample_rate = sample_rate;
+		this.sample_rate = sampleRate;
 		this.buffer_size = buffer_size;
 		this.properties = new NodeProperties(netlist);
 	}

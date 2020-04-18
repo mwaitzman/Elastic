@@ -1,5 +1,6 @@
 package net.merayen.elastic.uinodes.list.frequency_1
 
+import net.merayen.elastic.backend.logicnodes.list.frequency_1.FrequencyRequestMessage
 import net.merayen.elastic.backend.logicnodes.list.frequency_1.FrequencyUpdateMessage
 import net.merayen.elastic.backend.nodes.BaseNodeProperties
 import net.merayen.elastic.system.intercom.NodeDataMessage
@@ -8,6 +9,7 @@ import net.merayen.elastic.ui.objects.node.UIPort
 
 class UI : UINode() {
 	private val frequencySpectrum = FrequencySpectrum()
+	private var nextSpectrumRequest = 0L
 
 	override fun onCreatePort(port: UIPort) {
 		when (port.name) {
@@ -34,9 +36,19 @@ class UI : UINode() {
 		add(frequencySpectrum)
 	}
 
+	override fun onUpdate() {
+		super.onUpdate()
+
+		// If this method is run, it means we are shown to the user. We request data from the backend every second
+		if (nextSpectrumRequest < System.currentTimeMillis()) {
+			sendMessage(FrequencyRequestMessage(nodeId))
+			nextSpectrumRequest = System.currentTimeMillis() + 1000
+		}
+	}
+
 	override fun onData(message: NodeDataMessage) {
 		if (message is FrequencyUpdateMessage) {
-			val poles = message.poles
+			val poles = message.spectrum
 			if (poles != null)
 				frequencySpectrum.applyPoles(poles)
 		}

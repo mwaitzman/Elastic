@@ -20,7 +20,7 @@ class FrequencySpectrum : UIObject(), FlexibleDimension {  // TODO move out as a
 		// Reduce the poles every frame
 		val diff = pacer.getDiff(0.99f)
 		for (i in poles.indices)
-			poles[i] *= (1-diff)
+			poles[i] *= (1 - diff)
 	}
 
 	override fun onDraw(draw: Draw) {
@@ -32,7 +32,7 @@ class FrequencySpectrum : UIObject(), FlexibleDimension {  // TODO move out as a
 		val poleWidth = (layoutWidth * 0.95f) / poles.size
 		for (i in poles.indices) {
 			val value = min(poles[i], 1f)
-			val x = i / (poles.size + 1) * layoutWidth
+			val x = i / (poles.size + 1f) * layoutWidth
 			val height = value * layoutHeight
 			draw.fillRect(x, layoutHeight - height, poleWidth, height)
 		}
@@ -42,7 +42,6 @@ class FrequencySpectrum : UIObject(), FlexibleDimension {  // TODO move out as a
 	 * Apply a new set of poles.
 	 */
 	fun applyPoles(poles: FloatArray) {
-		if (poles.size != this.poles.size)
-			this.poles = poles.clone()
+		this.poles = poles.clone()
 	}
 }

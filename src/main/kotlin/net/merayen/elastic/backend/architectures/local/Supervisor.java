@@ -21,7 +21,7 @@ class Supervisor {
 	private static final String CLASS_PATH = "net.merayen.elastic.backend.architectures.local.nodes.%s_%d.LNode";
 
 	final NetList netlist;
-	private final int sample_rate;
+	private final int sampleRate;
 	final int buffer_size;
 	long sampleCount = 0; // Global sample counter from
 
@@ -47,9 +47,9 @@ class Supervisor {
 	private long not_processing_time_last;
 	private AverageStat<Long> not_processing_time = new AverageStat<>(1000);
 
-	public Supervisor(NetList netlist, int sample_rate, int buffer_size) {
+	public Supervisor(NetList netlist, int sampleRate, int buffer_size) {
 		this.netlist = netlist; // Our own, compiled NetList
-		this.sample_rate = sample_rate;
+		this.sampleRate = sampleRate;
 		this.buffer_size = buffer_size;
 
 		new NetListValidator(netlist); // Make sure the netlist is sane before we proceed
@@ -77,7 +77,7 @@ class Supervisor {
 				nodes.put(node.getID(), localnode);
 			}
 
-			localnode.compiler_setInfo(this, node, sample_rate, buffer_size);
+			localnode.compiler_setInfo(this, node, sampleRate, buffer_size);
 			localnode.init();
 
 			// Apply any parameters
@@ -278,7 +278,7 @@ class Supervisor {
 				nodeStats.put(ln.getID(), new StatisticsReportMessage.NodeStats(ln.getClass().getName(), 0f, (float)ln.getStatisticsAvg(), (float)ln.getStatisticsMax(), 0, ln.getStatisticsProcessCount()));
 			}
 
-			response.setStatisticsReportMessage(new StatisticsReportMessage(process_time.getAvg() / 1E9, process_time.getMax() / 1E9, not_processing_time.getAvg() / 1E9, nodeStats, buffer_size / (double) sample_rate));
+			response.setStatisticsReportMessage(new StatisticsReportMessage(process_time.getAvg() / 1E9, process_time.getMax() / 1E9, not_processing_time.getAvg() / 1E9, nodeStats, buffer_size / (double) sampleRate));
 		}
 
 		not_processing_time_last = System.nanoTime();
