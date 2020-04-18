@@ -4,6 +4,8 @@ import net.merayen.elastic.ui.Draw
 import net.merayen.elastic.ui.FlexibleDimension
 import net.merayen.elastic.ui.UIObject
 import net.merayen.elastic.util.Pacer
+import kotlin.math.log10
+import kotlin.math.max
 import kotlin.math.min
 
 class FrequencySpectrum : UIObject(), FlexibleDimension {  // TODO move out as a generic reusable component
@@ -31,7 +33,7 @@ class FrequencySpectrum : UIObject(), FlexibleDimension {  // TODO move out as a
 		draw.setColor(0f, 0.5f, 0.5f)
 		val poleWidth = (layoutWidth * 0.95f) / poles.size
 		for (i in poles.indices) {
-			val value = min(poles[i], 1f)
+			val value = 1 - log10(max(0.001f, min(poles[i], 1f))) * 10 / -30
 			val x = i / (poles.size + 1f) * layoutWidth
 			val height = value * layoutHeight
 			draw.fillRect(x, layoutHeight - height, poleWidth, height)

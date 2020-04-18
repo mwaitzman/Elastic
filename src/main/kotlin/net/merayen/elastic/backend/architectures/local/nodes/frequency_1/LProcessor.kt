@@ -65,7 +65,7 @@ class LProcessor : LocalProcessor() {
 			val scale = (accumulator.size / 2.0) / spectrum.size
 
 			for (i in 0 until accumulator.size / 2)
-				spectrum[(i / scale).toInt()] += ((accumulator[i].pow(2f) + imx[i].pow(2f)).pow(0.5f) - spectrum[(i / scale).toInt()]) / 10
+				spectrum[(i / scale).toInt()] += ((accumulator[i].pow(2f) + imx[i].pow(2f)).pow(0.5f) - spectrum[(i / scale).toInt()]) / 100
 
 			accumulatorPosition = 0
 		}

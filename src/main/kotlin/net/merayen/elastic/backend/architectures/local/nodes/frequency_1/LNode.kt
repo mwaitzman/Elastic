@@ -13,7 +13,7 @@ import kotlin.math.roundToInt
 class LNode : LocalNode(LProcessor::class.java) {
 	var collectSpectrum = 0L
 
-	val spectrumScale = 50
+	val spectrumScale = 20
 
 	val accumulatorSize: Int
 		get() {
