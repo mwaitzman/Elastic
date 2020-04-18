@@ -62,9 +62,10 @@ class LProcessor : LocalProcessor() {
 			FFT.fft(accumulator, imx)
 
 			val spectrum = spectrum!!
+			val scale = (accumulator.size / 2.0) / spectrum.size
 
-			for (i in spectrum.indices)
-				spectrum[i] += ((accumulator[i * lnode.spectrumScale].pow(2f) + imx[i * 10 ].pow(2f)).pow(0.5f) - spectrum[i]) / 2
+			for (i in 0 until accumulator.size / 2)
+				spectrum[(i / scale).toInt()] += ((accumulator[i].pow(2f) + imx[i].pow(2f)).pow(0.5f) - spectrum[(i / scale).toInt()]) / 10
 
 			accumulatorPosition = 0
 		}
