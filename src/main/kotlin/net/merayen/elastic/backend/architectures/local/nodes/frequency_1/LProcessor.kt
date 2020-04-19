@@ -19,6 +19,7 @@ class LProcessor : LocalProcessor() {
 		val lnode = localNode as LNode
 		accumulator = FloatArray(lnode.accumulatorSize)
 		spectrum = FloatArray(lnode.spectrumSize)
+
 	}
 
 	override fun onPrepare() {
@@ -54,7 +55,7 @@ class LProcessor : LocalProcessor() {
 		// Copy to accumulator
 		val accumulator = accumulator!!
 		for (i in 0 until min(buffer_size, accumulator.size - accumulatorPosition))
-			accumulator[accumulatorPosition++] = samples[i]
+			accumulator[accumulatorPosition++] = samples[i] * lnode.window[i]
 
 		// If accumulator has been filled, we do a FFT on it
 		if (accumulatorPosition == accumulator.size) {
