@@ -26,8 +26,8 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 	 */
 	class Environment(
 		val mixer: Mixer,
-		var synchronization: Synchronization,
-		var project: Project,
+		val synchronization: Synchronization,
+		val project: Project,
 		val configuration: Configuration = Configuration(),
 		val queue: Queue = Queue(4)
 	) {
@@ -80,7 +80,7 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 			when (val message = ingoing.receive() ?: return) {
 				is CreateCheckpointMessage -> environment.project.checkpoint.create()
 				is TidyProjectMessage -> environment.project.tidy()
-				is ImportFileIntoNodeGroupMessage -> ImportFileIntoNodeGroup(message).run()
+				is ImportFileIntoNodeGroupMessage -> ImportFileIntoNodeGroup(environment, message).run()
 				else -> backendSupervisor.receiveMessage(message)
 			}
 		}
