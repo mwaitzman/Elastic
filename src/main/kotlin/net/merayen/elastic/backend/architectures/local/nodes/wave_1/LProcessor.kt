@@ -9,10 +9,13 @@ import net.merayen.elastic.backend.midi.MidiState
 import net.merayen.elastic.backend.util.AudioUtil
 import kotlin.math.PI
 import kotlin.math.sin
+import kotlin.random.Random
 
 class LProcessor : LocalProcessor() {
 	var type: Properties.Type? = null
 	var pos = 0.0
+
+	private val random = Random(0)
 
 	private lateinit var frequencyCoefficients: FloatArray
 
@@ -65,8 +68,6 @@ class LProcessor : LocalProcessor() {
 			for (i in 0 until buffer_size)
 				frequencyCoefficients[i] = frequency.outlet.signal[i] / sampleRate
 		}
-
-		val factor = 440f / sampleRate // TODO take frequency from input
 
 		val signal = out.signal
 
