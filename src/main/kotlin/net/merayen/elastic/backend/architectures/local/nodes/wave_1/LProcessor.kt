@@ -15,7 +15,7 @@ class LProcessor : LocalProcessor() {
 	var type: Properties.Type? = null
 	var pos = 0.0
 
-	private val random = Random(0)
+	private val random = java.util.Random(0)
 
 	private lateinit var frequencyCoefficients: FloatArray
 
@@ -74,7 +74,7 @@ class LProcessor : LocalProcessor() {
 		when (type) {
 			Properties.Type.NOISE -> for (i in 0 until buffer_size) {
 				val c = frequencyCoefficients[i]
-				signal[i] = if (c > 0) (Math.random().toFloat() - 0.5f) * 0.1f else 0f //noise[(pos % noise.size).toInt()] * 0.1f
+				signal[i] = if (c > 0) (random.nextFloat() - 0.5f) * 0.1f else 0f //noise[(pos % noise.size).toInt()] * 0.1f
 			}
 			Properties.Type.SINE -> for (i in 0 until buffer_size) {
 				val c = frequencyCoefficients[i]

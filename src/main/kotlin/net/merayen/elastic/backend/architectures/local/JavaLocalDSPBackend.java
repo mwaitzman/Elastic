@@ -22,11 +22,11 @@ public class JavaLocalDSPBackend extends DSPModule {
 	@Override
 	public void mainLoop() {
 		while (isRunning()) {
-			try {
-				Thread.sleep(1);
+			/*try {
+				//Thread.sleep(0);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
-			}
+			}*/
 
 			for (ElasticMessage message : getIngoing().receiveAll())
 				handleMessage(message);

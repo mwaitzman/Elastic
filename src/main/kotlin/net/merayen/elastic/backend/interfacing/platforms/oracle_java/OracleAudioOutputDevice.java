@@ -81,19 +81,9 @@ public class OracleAudioOutputDevice extends AudioOutputDevice {
 
 	private long last_write = System.currentTimeMillis();
 
-	private boolean debugFirst;
-
 	@Override
 	public void onWrite(float[] audio) {
 		Configuration c = (Configuration)getConfiguration();
-
-		if (!debugFirst) {
-			for (int i = 0; i < audio.length; i++)
-				System.out.print((Math.round(audio[i] * 100) / 100) + " ");
-
-			System.out.println();
-			debugFirst = true;
-		}
 
 		if(buffer.length * c.depth / 8 != audio.length)
 			buffer = new byte[audio.length * c.depth / 8];
