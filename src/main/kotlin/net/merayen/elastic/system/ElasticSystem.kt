@@ -19,10 +19,10 @@ import kotlin.reflect.KClass
  * 	This class routes the messages correctly between them
  */
 class ElasticSystem(
-	projectPath: String,
-	uiModule: KClass<out UIModule>,
-	dspModule: KClass<out DSPModule>,
-	backendModule: KClass<out BackendModule>
+		projectPath: String,
+		uiModule: KClass<out UIModule>,
+		dspModule: KClass<out DSPModule>,
+		backendModule: KClass<out BackendModule>
 ) : Closeable {
 	private var ui = uiModule.constructors.first().call()
 	private var backend = backendModule.constructors.first().call(projectPath)
@@ -63,6 +63,12 @@ class ElasticSystem(
 			ui.ingoing.send(message)
 			dsp.ingoing.send(message)
 			messagesFromBackendDistributor.push(message)
+		}
+
+		if (!dsp.ingoing.isEmpty()) {
+			synchronized(dsp.lock) {
+				dsp.lock.notifyAll()
+			}
 		}
 	}
 

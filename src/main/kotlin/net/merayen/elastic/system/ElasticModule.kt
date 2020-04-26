@@ -5,6 +5,8 @@ import net.merayen.elastic.util.Postmaster
 import java.io.Closeable
 
 abstract class ElasticModule : Thread(), Closeable {
+	val lock = Object()
+
 	/**
 	 * Messages sent to this module, that are to be read by this module.
 	 */

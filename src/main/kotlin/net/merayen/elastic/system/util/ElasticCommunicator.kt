@@ -28,6 +28,9 @@ class ElasticCommunicator(private val system: ElasticSystem) : Closeable {
 
 	fun send(message: ElasticMessage) = system.send(message)
 
+	/**
+	 * Only for testing.
+	 */
 	fun waitForBackendMessage(func: (message: ElasticMessage) -> Boolean) {
 		while (true) {
 			system.update()
@@ -39,6 +42,9 @@ class ElasticCommunicator(private val system: ElasticSystem) : Closeable {
 		}
 	}
 
+	/**
+	 * Only for testing.
+	 */
 	fun waitForUIMessage(func: (message: ElasticMessage) -> Boolean) {
 		while (true) {
 			system.update()
@@ -50,6 +56,9 @@ class ElasticCommunicator(private val system: ElasticSystem) : Closeable {
 		}
 	}
 
+	/**
+	 * Only for testing.
+	 */
 	fun waitFor(func: () -> Boolean) {
 		while (!func()) {
 			system.update()
