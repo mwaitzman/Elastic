@@ -133,7 +133,7 @@ public class Synchronization {
 	private int bufferSize;
 	private volatile long sampleCount; // samples from start. Counts upwards
 	private boolean reportedBehind;
-	private long startWaitingData;
+	private long startWaitingData = System.nanoTime();
 
 	public Synchronization(Mixer mixer, Handler handler) {
 		this.mixer = mixer;

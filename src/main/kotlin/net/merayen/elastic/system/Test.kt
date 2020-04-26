@@ -59,7 +59,7 @@ class Test private constructor() {
 	private fun waitFor(func: () -> Boolean) {
 		try {
 			while (!func()) {
-				system.update()
+				system.update(1000)
 				//Thread.sleep(1)
 			}
 		} catch (e: InterruptedException) {

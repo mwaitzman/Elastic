@@ -5,6 +5,16 @@ import net.merayen.elastic.util.Postmaster
 import java.io.Closeable
 
 abstract class ElasticModule : Thread(), Closeable {
+	interface Handler {
+		/**
+		 * Called when this module sends outgoing messages.
+		 * ElasticSystem's thread will wake up and retrieve the message.
+		 */
+		fun onWakeUp()
+	}
+
+	var handler: Handler? = null
+
 	val lock = Object()
 
 	/**
@@ -40,6 +50,8 @@ abstract class ElasticModule : Thread(), Closeable {
 	 *	}
 	 */
 	abstract fun mainLoop()
+
+	protected fun notifyElasticSystem() = handler!!.onWakeUp()
 
 	override fun close() {
 		isRunning = false

@@ -33,7 +33,7 @@ class ElasticCommunicator(private val system: ElasticSystem) : Closeable {
 	 */
 	fun waitForBackendMessage(func: (message: ElasticMessage) -> Boolean) {
 		while (true) {
-			system.update()
+			system.update(0)
 			Thread.sleep(1)
 			val message = messagesFromBackend.receive()
 			if (message != null)
@@ -47,7 +47,7 @@ class ElasticCommunicator(private val system: ElasticSystem) : Closeable {
 	 */
 	fun waitForUIMessage(func: (message: ElasticMessage) -> Boolean) {
 		while (true) {
-			system.update()
+			system.update(0)
 			Thread.sleep(1)
 			val message = messagesFromBackend.receive()
 			if (message != null)
@@ -61,7 +61,7 @@ class ElasticCommunicator(private val system: ElasticSystem) : Closeable {
 	 */
 	fun waitFor(func: () -> Boolean) {
 		while (!func()) {
-			system.update()
+			system.update(0)
 			Thread.sleep(1)
 		}
 	}

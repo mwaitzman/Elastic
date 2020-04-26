@@ -5,6 +5,7 @@ import net.merayen.elastic.system.intercom.CreateDefaultProjectMessage
 import net.merayen.elastic.system.intercom.ElasticMessage
 import net.merayen.elastic.util.tap.ObjectDistributor
 import java.io.Closeable
+import kotlin.math.min
 import kotlin.reflect.KClass
 
 /**
@@ -24,6 +25,11 @@ class ElasticSystem(
 		dspModule: KClass<out DSPModule>,
 		backendModule: KClass<out BackendModule>
 ) : Closeable {
+	val lock = Object()
+
+	@Volatile
+	private var handleMessages = false
+
 	private var ui = uiModule.constructors.first().call()
 	private var backend = backendModule.constructors.first().call(projectPath)
 	private var dsp = dspModule.constructors.first().call()
@@ -39,6 +45,22 @@ class ElasticSystem(
 
 
 	init {
+		val handler = object : ElasticModule.Handler {
+			override fun onWakeUp() {
+				synchronized(lock) {
+					handleMessages = true
+					lock.notifyAll()
+					println("${System.currentTimeMillis() % 1000}: Notifisert!")
+					//for (noe in Thread.currentThread().stackTrace.slice(3..4))
+					//	println("\t${noe.className.split("net.merayen.elastic.")[1]} ${noe.methodName}")
+				}
+			}
+		}
+
+		ui.handler = handler
+		dsp.handler = handler
+		backend.handler = handler
+
 		ui.start()
 		dsp.start()
 		backend.start()
@@ -46,15 +68,31 @@ class ElasticSystem(
 
 
 	/**
-	 * Needs to be called often by main thread.
 	 * Routes messages between the components.
 	 */
-	fun update() { // TODO perhaps don't do this, but rather trigger on events
+	fun update(timeoutMilliseconds: Long) { // TODO perhaps don't do this, but rather trigger on events
+		val start = System.currentTimeMillis() + timeoutMilliseconds
 		assertCorrectThread()
+		do {
+			synchronized(lock) {
+				if (handleMessages) {
+					lock.wait(min(timeoutMilliseconds, 1000))
+					if (handleMessages) {
+						println("${System.currentTimeMillis() % 1000}: Notified, message status: ui=${ui.ingoing.size()}/${ui.outgoing.size()}, backend=${backend.ingoing.size()}/${backend.outgoing.size()}, dsp=${dsp.ingoing.size()}/${dsp.outgoing.size()}")
+					} else {
+						println("Woke up by myself")
+					}
+					handleMessages = false
+				}
+			}
 
-		processMessagesFromBackend()
-		processMessagesFromUI()
-		processMessagesFromDSP()
+			processMessagesFromBackend()
+			processMessagesFromUI()
+			processMessagesFromDSP()
+
+			println("${System.currentTimeMillis() % 1000}: Done handling messages")
+
+		} while (start > System.currentTimeMillis())
 	}
 
 	private fun processMessagesFromBackend() {
@@ -65,11 +103,11 @@ class ElasticSystem(
 			messagesFromBackendDistributor.push(message)
 		}
 
-		if (!dsp.ingoing.isEmpty()) {
+		//if (!dsp.ingoing.isEmpty()) {
 			synchronized(dsp.lock) {
 				dsp.lock.notifyAll()
 			}
-		}
+		//}
 	}
 
 	private fun processMessagesFromUI() {
@@ -78,11 +116,11 @@ class ElasticSystem(
 			messagesFromUIDistributor.push(message)
 		}
 
-		if (!backend.ingoing.isEmpty()) {
+		//if (!backend.ingoing.isEmpty()) {
 			synchronized(backend.lock) {
 				backend.lock.notifyAll()
 			}
-		}
+		//}
 	}
 
 	private fun processMessagesFromDSP() {
@@ -91,11 +129,11 @@ class ElasticSystem(
 			messagesFromDSPDistributor.push(message)
 		}
 
-		if (!backend.ingoing.isEmpty()) {
+		//if (!backend.ingoing.isEmpty()) {
 			synchronized(backend.lock) {
 				backend.lock.notifyAll()
 			}
-		}
+		//}
 	}
 
 	/**
@@ -116,6 +154,10 @@ class ElasticSystem(
 		}
 
 		backend.ingoing.send(message)
+
+		synchronized(lock) {
+			lock.notifyAll()
+		}
 	}
 
 	/**
@@ -138,8 +180,13 @@ class ElasticSystem(
 
 	private fun runAction(action: Action) {
 		action.handler = object : Action.Handler {
-			override fun onMessage(message: ElasticMessage) = backend.ingoing.send(message)
-			override fun onUpdateSystem() = update()
+			override fun onMessage(message: ElasticMessage) {
+				backend.ingoing.send(message)
+				synchronized(lock) {
+					lock.notifyAll()
+				}
+			}
+			override fun onUpdateSystem() = update(0)
 		}
 
 		// TODO soon: Should we close the tap? What happens here?
@@ -160,6 +207,6 @@ class ElasticSystem(
 
 	private fun assertCorrectThread() {
 		if (threadLock != Thread.currentThread().id)
-			throw RuntimeException("ElasticSystem can only be used by the thread it was ")
+			throw RuntimeException("ElasticSystem can only be used by the thread it was created in")
 	}
 }

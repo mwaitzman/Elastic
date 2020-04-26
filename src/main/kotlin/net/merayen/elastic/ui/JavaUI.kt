@@ -22,7 +22,11 @@ class JavaUI : UIModule() {
 			for (message in ingoing.receiveAll())
 				top.sendMessageToUI(message)
 
-			outgoing.send(top.retrieveMessagesFromUI())
+			val messages = top.retrieveMessagesFromUI()
+			if (messages.isNotEmpty()) {
+				outgoing.send(messages)
+				notifyElasticSystem()
+			}
 
 			sleep(1) // TODO should probably sleep thread somehow?
 		}

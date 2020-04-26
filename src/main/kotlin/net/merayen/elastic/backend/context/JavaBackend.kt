@@ -46,6 +46,7 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 			override fun needData() {
 				// Send the message into the usual queue so that it gets run in the correct thread
 				ingoing.send(ProcessRequestMessage())
+				notifyElasticSystem()
 			}
 
 			override fun behind() {}
@@ -61,7 +62,10 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 
 		outgoing.send(BackendReadyMessage()) // Notifies that backend is ready and that the project has been restored
 
+		notifyElasticSystem()
+
 		environment.synchronization.start()
+
 
 		while (isRunning) {
 			synchronized(lock) {
@@ -88,8 +92,15 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 	}
 
 	private fun createLogicNodeBackend() = Supervisor(environment, object : Supervisor.Handler {
-		override fun onSendToDSP(message: ElasticMessage) = outgoing.send(message)
-		override fun onSendToUI(message: ElasticMessage) = outgoing.send(message)
+		override fun onSendToDSP(message: ElasticMessage) {
+			outgoing.send(message)
+			notifyElasticSystem()
+		}
+
+		override fun onSendToUI(message: ElasticMessage) {
+			outgoing.send(message)
+			notifyElasticSystem()
+		}
 
 		override fun onProcessDone() {
 			environment.synchronization.push(

@@ -15,7 +15,6 @@ public class JavaLocalDSPBackend extends DSPModule {
 
 	public JavaLocalDSPBackend() {
 		super();
-
 		setName("JavaLocalDSPBackend");
 	}
 
@@ -47,11 +46,13 @@ public class JavaLocalDSPBackend extends DSPModule {
 
 			if (supervisor == null) { // Got nothing to respond with, we are completely empty
 				getOutgoing().send(new ProcessResponseMessage());
+				notifyElasticSystem();
 				return;
 			}
 
 			ProcessResponseMessage pm = supervisor.process((ProcessRequestMessage) message);
 			getOutgoing().send(pm);
+			notifyElasticSystem();
 
 		} else if (message instanceof NodePropertyMessage || message instanceof NodeDataMessage) {
 			applyNetList();
