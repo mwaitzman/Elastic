@@ -77,12 +77,24 @@ class ElasticSystem(
 			backend.ingoing.send(message)
 			messagesFromUIDistributor.push(message)
 		}
+
+		if (!backend.ingoing.isEmpty()) {
+			synchronized(backend.lock) {
+				backend.lock.notifyAll()
+			}
+		}
 	}
 
 	private fun processMessagesFromDSP() {
 		for (message in dsp.outgoing.receiveAll()) {
 			backend.ingoing.send(message)
 			messagesFromDSPDistributor.push(message)
+		}
+
+		if (!backend.ingoing.isEmpty()) {
+			synchronized(backend.lock) {
+				backend.lock.notifyAll()
+			}
 		}
 	}
 

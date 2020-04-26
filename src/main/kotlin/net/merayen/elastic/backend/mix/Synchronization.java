@@ -107,8 +107,7 @@ public class Synchronization {
 						wait(1);
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				    throw new RuntimeException(e);
 				}
 			}
 		}

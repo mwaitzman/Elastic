@@ -20,7 +20,6 @@ import net.merayen.elastic.util.NetListMessages
  * Glues together NetList, MainNodes and the processing backend (architecture)
  */
 class JavaBackend(projectPath: String) : BackendModule(projectPath) {
-
 	/**
 	 * Environment is an object that contains common functionality, thrown around in the backend.
 	 */
@@ -65,8 +64,10 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 		environment.synchronization.start()
 
 		while (isRunning) {
-			handleMessages()
-			sleep(1)
+			synchronized(lock) {
+				handleMessages()
+				lock.wait()
+			}
 		}
 
 		environment.synchronization.end()
