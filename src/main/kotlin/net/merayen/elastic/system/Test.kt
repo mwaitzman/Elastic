@@ -60,7 +60,7 @@ class Test private constructor() {
 		try {
 			while (!func()) {
 				system.update()
-				Thread.sleep(1)
+				//Thread.sleep(1)
 			}
 		} catch (e: InterruptedException) {
 			e.printStackTrace()
