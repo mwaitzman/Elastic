@@ -43,16 +43,12 @@ class ElasticSystem(
 	 */
 	private val threadLock = Thread.currentThread().id
 
-
 	init {
 		val handler = object : ElasticModule.Handler {
 			override fun onWakeUp() {
 				synchronized(lock) {
 					handleMessages = true
 					lock.notifyAll()
-					println("${System.currentTimeMillis() % 1000}: Notifisert!")
-					//for (noe in Thread.currentThread().stackTrace.slice(3..4))
-					//	println("\t${noe.className.split("net.merayen.elastic.")[1]} ${noe.methodName}")
 				}
 			}
 		}
@@ -75,13 +71,8 @@ class ElasticSystem(
 		assertCorrectThread()
 		do {
 			synchronized(lock) {
-				if (handleMessages) {
+				if (!handleMessages) {
 					lock.wait(min(timeoutMilliseconds, 1000))
-					if (handleMessages) {
-						println("${System.currentTimeMillis() % 1000}: Notified, message status: ui=${ui.ingoing.size()}/${ui.outgoing.size()}, backend=${backend.ingoing.size()}/${backend.outgoing.size()}, dsp=${dsp.ingoing.size()}/${dsp.outgoing.size()}")
-					} else {
-						println("Woke up by myself")
-					}
 					handleMessages = false
 				}
 			}
@@ -90,50 +81,54 @@ class ElasticSystem(
 			processMessagesFromUI()
 			processMessagesFromDSP()
 
-			println("${System.currentTimeMillis() % 1000}: Done handling messages")
-
 		} while (start > System.currentTimeMillis())
 	}
 
 	private fun processMessagesFromBackend() {
+		var pushed = false
 		for (message in backend.outgoing.receiveAll()) {
+			pushed = true
 			// TODO soon: Filter messages
 			ui.ingoing.send(message)
 			dsp.ingoing.send(message)
 			messagesFromBackendDistributor.push(message)
 		}
 
-		//if (!dsp.ingoing.isEmpty()) {
+		if (pushed) {
 			synchronized(dsp.lock) {
 				dsp.lock.notifyAll()
 			}
-		//}
+		}
 	}
 
 	private fun processMessagesFromUI() {
+		var pushed = false
 		for (message in ui.outgoing.receiveAll()) {
+			pushed = true
 			backend.ingoing.send(message)
 			messagesFromUIDistributor.push(message)
 		}
 
-		//if (!backend.ingoing.isEmpty()) {
+		if (pushed) {
 			synchronized(backend.lock) {
 				backend.lock.notifyAll()
 			}
-		//}
+		}
 	}
 
 	private fun processMessagesFromDSP() {
+		var pushed = false
 		for (message in dsp.outgoing.receiveAll()) {
+			pushed = true
 			backend.ingoing.send(message)
 			messagesFromDSPDistributor.push(message)
 		}
 
-		//if (!backend.ingoing.isEmpty()) {
+		if (pushed) {
 			synchronized(backend.lock) {
 				backend.lock.notifyAll()
 			}
-		//}
+		}
 	}
 
 	/**

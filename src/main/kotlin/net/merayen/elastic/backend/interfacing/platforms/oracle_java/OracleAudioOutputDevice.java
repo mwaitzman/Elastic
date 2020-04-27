@@ -149,7 +149,7 @@ public class OracleAudioOutputDevice extends AudioOutputDevice {
 	private void prepareLine(int buffer_size) {
 		Configuration c = (Configuration) getConfiguration();
 
-		if(!line.isOpen() || line.getBufferSize() != buffer_size) {
+		if(!line.isOpen() || line.getBufferSize() != buffer_size * 1) {
 			try {
 				System.out.printf("Reconfiguring Oracle audio output device %s, buffer_size=%d (current buffer size: %d)\n", c.getDescription(), buffer_size, line.getBufferSize());
 
