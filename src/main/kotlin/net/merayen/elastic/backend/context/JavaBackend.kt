@@ -46,7 +46,7 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 			override fun needData() {
 				// Send the message into the usual queue so that it gets run in the correct thread
 				ingoing.send(ProcessRequestMessage())
-				notifyElasticSystem()
+				schedule()
 			}
 
 			override fun behind() {}
@@ -65,7 +65,6 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 		notifyElasticSystem()
 
 		environment.synchronization.start()
-
 	}
 
 	override fun onUpdate() {

@@ -3,6 +3,7 @@ package net.merayen.elastic.system
 import net.merayen.elastic.system.actions.CreateDefaultProject
 import net.merayen.elastic.system.intercom.CreateDefaultProjectMessage
 import net.merayen.elastic.system.intercom.ElasticMessage
+import net.merayen.elastic.util.AverageStat
 import net.merayen.elastic.util.tap.ObjectDistributor
 import java.io.Closeable
 import kotlin.math.min
@@ -25,9 +26,7 @@ class ElasticSystem(
 		dspModule: KClass<out DSPModule>,
 		backendModule: KClass<out BackendModule>
 ) : Closeable {
-	val lock = Object()
-
-	@Volatile
+	private val lock = Object()
 	private var handleMessages = false
 
 	private var ui = uiModule.constructors.first().call()
@@ -62,7 +61,6 @@ class ElasticSystem(
 		backend.start()
 	}
 
-
 	/**
 	 * Routes messages between the components.
 	 */
@@ -75,10 +73,10 @@ class ElasticSystem(
 		do {
 			if (!firstRun) {
 				synchronized(lock) {
-					if (!handleMessages) {
+					if (!handleMessages)
 						lock.wait(min(timeoutMilliseconds, 1000))
-						handleMessages = false
-					}
+
+					handleMessages = false
 				}
 			}
 
@@ -101,8 +99,8 @@ class ElasticSystem(
 			messagesFromBackendDistributor.push(message)
 		}
 
-		//if (pushed)
-		dsp.schedule()
+		if (pushed)
+			dsp.schedule()
 	}
 
 	private fun processMessagesFromUI() {
@@ -113,7 +111,8 @@ class ElasticSystem(
 			messagesFromUIDistributor.push(message)
 		}
 
-		backend.schedule()
+		if (pushed)
+			backend.schedule()
 	}
 
 	private fun processMessagesFromDSP() {
@@ -124,7 +123,8 @@ class ElasticSystem(
 			messagesFromDSPDistributor.push(message)
 		}
 
-		backend.schedule()
+		if (pushed)
+			backend.schedule()
 	}
 
 	/**
@@ -133,10 +133,6 @@ class ElasticSystem(
 	@Synchronized
 	fun send(message: ElasticMessage) {
 		assertCorrectThread()
-
-		println("ElasticSystem: $message")
-
-		val backend = backend
 
 		when (message) {
 			is CreateDefaultProjectMessage -> {
@@ -147,6 +143,7 @@ class ElasticSystem(
 		backend.ingoing.send(message)
 
 		synchronized(lock) {
+			handleMessages = true
 			lock.notifyAll()
 		}
 	}
@@ -174,6 +171,7 @@ class ElasticSystem(
 			override fun onMessage(message: ElasticMessage) {
 				backend.ingoing.send(message)
 				synchronized(lock) {
+					handleMessages = true
 					lock.notifyAll()
 				}
 			}

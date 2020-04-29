@@ -15,7 +15,7 @@ abstract class ElasticModule : Thread(), Closeable {
 
 	var handler: Handler? = null
 
-	val lock = Object()
+	private val lock = Object()
 
 	private var notified = true
 

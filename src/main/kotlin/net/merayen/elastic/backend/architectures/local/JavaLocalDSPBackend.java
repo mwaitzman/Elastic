@@ -19,7 +19,8 @@ public class JavaLocalDSPBackend extends DSPModule {
 	}
 
 	@Override
-	public void onInit() {}
+	public void onInit() {
+	}
 
 	@Override
 	public void onUpdate() {
