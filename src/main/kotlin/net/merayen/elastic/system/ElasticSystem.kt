@@ -69,17 +69,24 @@ class ElasticSystem(
 	fun update(timeoutMilliseconds: Long) { // TODO perhaps don't do this, but rather trigger on events
 		val start = System.currentTimeMillis() + timeoutMilliseconds
 		assertCorrectThread()
+
+		var firstRun = true
+
 		do {
-			synchronized(lock) {
-				if (!handleMessages) {
-					lock.wait(min(timeoutMilliseconds, 1000))
-					handleMessages = false
+			if (!firstRun) {
+				synchronized(lock) {
+					if (!handleMessages) {
+						lock.wait(min(timeoutMilliseconds, 1000))
+						handleMessages = false
+					}
 				}
 			}
 
 			processMessagesFromBackend()
 			processMessagesFromUI()
 			processMessagesFromDSP()
+
+			firstRun = false
 
 		} while (start > System.currentTimeMillis())
 	}
@@ -88,17 +95,14 @@ class ElasticSystem(
 		var pushed = false
 		for (message in backend.outgoing.receiveAll()) {
 			pushed = true
-			// TODO soon: Filter messages
+			// TODO Filter messages
 			ui.ingoing.send(message)
 			dsp.ingoing.send(message)
 			messagesFromBackendDistributor.push(message)
 		}
 
-		if (pushed) {
-			synchronized(dsp.lock) {
-				dsp.lock.notifyAll()
-			}
-		}
+		//if (pushed)
+		dsp.schedule()
 	}
 
 	private fun processMessagesFromUI() {
@@ -109,11 +113,7 @@ class ElasticSystem(
 			messagesFromUIDistributor.push(message)
 		}
 
-		if (pushed) {
-			synchronized(backend.lock) {
-				backend.lock.notifyAll()
-			}
-		}
+		backend.schedule()
 	}
 
 	private fun processMessagesFromDSP() {
@@ -124,11 +124,7 @@ class ElasticSystem(
 			messagesFromDSPDistributor.push(message)
 		}
 
-		if (pushed) {
-			synchronized(backend.lock) {
-				backend.lock.notifyAll()
-			}
-		}
+		backend.schedule()
 	}
 
 	/**
@@ -181,6 +177,7 @@ class ElasticSystem(
 					lock.notifyAll()
 				}
 			}
+
 			override fun onUpdateSystem() = update(0)
 		}
 

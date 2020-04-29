@@ -45,12 +45,12 @@ abstract class AbstractDevice(val id: String // an unique ID for a device. Shoul
 		/**
 		 * Samples available before reading/writing.
 		 */
-		val available_before = AverageStat<Int>(10)
+		val available_before = AverageStat<Int>(100)
 
 		/**
 		 * Samples available after reading/writing.
 		 */
-		val available_after = AverageStat<Int>(10)
+		val available_after = AverageStat<Int>(100)
 
 		/**
 		 * Samples processed on read/write.

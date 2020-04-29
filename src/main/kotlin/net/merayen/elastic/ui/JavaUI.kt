@@ -17,8 +17,10 @@ class JavaUI : UIModule() {
 		}
 	}
 
-	override fun mainLoop() {
-		while (isRunning) {
+	override fun onInit() {}
+
+	override fun onUpdate() {
+		while (isRunning) { // We never return, holding the loop
 			for (message in ingoing.receiveAll())
 				top.sendMessageToUI(message)
 
@@ -32,5 +34,7 @@ class JavaUI : UIModule() {
 		}
 	}
 
-	fun end() = surfaceHandler.end()
+	override fun onEnd() {
+		surfaceHandler.end()
+	}
 }

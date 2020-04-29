@@ -19,20 +19,16 @@ public class JavaLocalDSPBackend extends DSPModule {
 	}
 
 	@Override
-	public void mainLoop() {
-		while (isRunning()) {
-			synchronized (getLock()) {
-				try {
-					getLock().wait();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
+	public void onInit() {}
 
-			for (ElasticMessage message : getIngoing().receiveAll())
-				handleMessage(message);
-		}
+	@Override
+	public void onUpdate() {
+		for (ElasticMessage message : getIngoing().receiveAll())
+			handleMessage(message);
+	}
 
+	@Override
+	public void onEnd() {
 		if (supervisor != null)
 			supervisor.clear();
 	}

@@ -55,7 +55,7 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 		return Environment(mixer, sync, Project(projectPath))
 	}
 
-	override fun mainLoop() {
+	override fun onInit() {
 		// Restore project
 		ingoing.send(NetListMessages.disassemble(environment.project.data.rawNetList))
 		handleMessages()
@@ -66,23 +66,19 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 
 		environment.synchronization.start()
 
+	}
 
-		while (isRunning) {
-			synchronized(lock) {
-				handleMessages()
-				lock.wait()
-			}
-		}
+	override fun onUpdate() {
+		handleMessages()
+	}
 
+	override fun onEnd() {
 		environment.synchronization.end()
 	}
 
-	/**
-	 * Send message to backend
-	 */
-	private fun handleMessages() { // TODO soon: check that all messages are treated correctly
-		while (true) {
-			when (val message = ingoing.receive() ?: return) {
+	private fun handleMessages() {
+		for (message in ingoing.receiveAll()) {
+			when (message) {
 				is CreateCheckpointMessage -> environment.project.checkpoint.create()
 				is TidyProjectMessage -> environment.project.tidy()
 				is ImportFileIntoNodeGroupMessage -> ImportFileIntoNodeGroup(environment, message).run()
