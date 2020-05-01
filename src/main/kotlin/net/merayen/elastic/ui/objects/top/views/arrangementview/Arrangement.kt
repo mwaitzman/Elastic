@@ -1,5 +1,6 @@
 package net.merayen.elastic.ui.objects.top.views.arrangementview
 
+import net.merayen.elastic.backend.logicnodes.list.group_1.PlaybackStatusMessage
 import net.merayen.elastic.system.intercom.CreateNodeMessage
 import net.merayen.elastic.system.intercom.ElasticMessage
 import net.merayen.elastic.system.intercom.NodePropertyMessage
@@ -17,7 +18,7 @@ class Arrangement : UIObject() {
 	var layoutWidth: Float = 0f
 	var layoutHeight: Float = 0f
 
-	var beatWidth = 20f
+	var beatWidth = 40f
 
 	private val tracks = ArrayList<ArrangementTrack>()
 	private val trackList = TrackList()
@@ -120,6 +121,7 @@ class Arrangement : UIObject() {
 					tracks.add(midiTrack)
 				}
 			}
+			is PlaybackStatusMessage -> eventList.handleMessage(message)
 		}
 
 		for (track in tracks) {

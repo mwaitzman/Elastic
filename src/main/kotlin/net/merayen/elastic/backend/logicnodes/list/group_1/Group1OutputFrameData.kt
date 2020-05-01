@@ -8,6 +8,6 @@ import net.merayen.elastic.system.intercom.OutputFrameData
  */
 class Group1OutputFrameData(
 	nodeId: String,
-	nodeStats: NodeStatusMessage,
-	currentPlayheadPosition: Float
-) : OutputFrameData(nodeId, nodeStats)
+	val currentPlayheadPosition: Float,
+	val currentBPM: Float
+) : OutputFrameData(nodeId)

@@ -5,6 +5,7 @@ import net.merayen.elastic.backend.architectures.local.GroupLNode
 import net.merayen.elastic.backend.architectures.local.LocalNode
 import net.merayen.elastic.backend.architectures.local.LocalProcessor
 import net.merayen.elastic.backend.logicnodes.list.group_1.Group1InputFrameData
+import net.merayen.elastic.backend.logicnodes.list.group_1.Group1OutputFrameData
 import net.merayen.elastic.backend.logicnodes.list.group_1.Properties
 import net.merayen.elastic.backend.nodes.BaseNodeProperties
 import net.merayen.elastic.system.intercom.InputFrameData
@@ -102,7 +103,7 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 			playing = false
 
 		if (playheadPosition != null) {
-			this.currentBeatPosition = playheadPosition.toDouble()
+			this.currentCursorBeatPosition = playheadPosition.toDouble()
 			playCount++
 			println("Playhead position moved: $playheadPosition")
 		}
@@ -127,6 +128,9 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 			currentBeatPosition += (buffer_size / sample_rate.toDouble()) * (getCurrentFrameBPM() / 60.0)
 			currentBeatPosition %= getCurrentBarDivision()
 		}
+
+		// Report back playback position
+		outgoing = Group1OutputFrameData(nodeId = id, currentPlayheadPosition = currentCursorBeatPosition.toFloat(), currentBPM = bpm.toFloat())
 	}
 
 	override fun onDestroy() {}

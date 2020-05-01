@@ -16,24 +16,33 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 	private var stopPlaying = false
 	private var playheadPosition: Float? = null
 	private var bpm = 120.0
+	private var isPlaying = false
 
 	private var sampleRate: Int = Temporary.sampleRate
 	private var bufferSize: Int = Temporary.bufferSize
 	private var depth: Int = Temporary.depth
 
+	private var nextReportToUI = System.currentTimeMillis()
+
 	override fun onInit() {}
 	override fun onConnect(port: String) {}
 	override fun onDisconnect(port: String) {}
 	override fun onRemove() {}
-	override fun onFinishFrame(data: OutputFrameData?) {}
+
 	override fun onData(message: NodeDataMessage) {
 		when (message) {
 			is SetBPMMessage -> {
 				bpm = message.bpm.toDouble()
 				updateProperties(Properties(bpm = bpm.toInt()))
 			}
-			is TransportStartPlaybackMessage -> startPlaying = true
-			is TransportStopPlaybackMessage -> stopPlaying = true
+			is TransportStartPlaybackMessage -> {
+				startPlaying = true
+				isPlaying = true
+			}
+			is TransportStopPlaybackMessage -> {
+				stopPlaying = true
+				isPlaying = false
+			}
 		}
 	}
 
@@ -69,5 +78,14 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 		playheadPosition = null
 
 		return data
+	}
+
+	override fun onFinishFrame(data: OutputFrameData?) {
+		data as Group1OutputFrameData
+
+		if (nextReportToUI < System.currentTimeMillis()) {
+			nextReportToUI = System.currentTimeMillis() + 50
+			sendMessage(PlaybackStatusMessage(nodeId = id, currentPlayheadPosition = data.currentPlayheadPosition, currentBPM = data.currentBPM, isPlaying = isPlaying))
+		}
 	}
 }

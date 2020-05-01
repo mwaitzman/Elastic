@@ -30,7 +30,7 @@ class LProcessor : LocalProcessor() {
 			}
 
 			if (parent.isPlaying())
-				println("Playing! startBeat=${startBeat}, stopBeat=${stopBeat}")
+				; // TODO println("Playing! startBeat=${startBeat}, stopBeat=${stopBeat}")
 
 			val lnode = (localNode as LNode)
 			val inputMidi = lnode.inputMidi

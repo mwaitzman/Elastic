@@ -1,5 +1,6 @@
 package net.merayen.elastic.ui.controller
 
+import net.merayen.elastic.backend.logicnodes.list.group_1.PlaybackStatusMessage
 import net.merayen.elastic.system.intercom.CreateNodeMessage
 import net.merayen.elastic.system.intercom.ElasticMessage
 import net.merayen.elastic.system.intercom.NodePropertyMessage

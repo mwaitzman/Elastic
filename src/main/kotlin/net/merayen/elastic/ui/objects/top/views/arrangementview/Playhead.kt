@@ -40,7 +40,6 @@ class Playhead : UIObject(), FlexibleDimension {
 			override fun onDrop() {
 				handler?.onMoved((translation.x + layoutWidth / 2) / beatWidth)
 			}
-
 		})
 	}
 
@@ -65,6 +64,8 @@ class Playhead : UIObject(), FlexibleDimension {
 	}
 
 	fun setPosition(beat: Float) {
-		translation.x = beatWidth * beat - layoutWidth / 2
+		if (!movable.isDragging) {
+			translation.x = beatWidth * beat - layoutWidth / 2
+		}
 	}
 }
