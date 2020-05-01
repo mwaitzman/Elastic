@@ -10,6 +10,8 @@ import net.merayen.elastic.ui.event.KeyboardEvent
 import net.merayen.elastic.ui.objects.top.easymotion.Branch
 import net.merayen.elastic.ui.objects.top.easymotion.EasyMotion
 import net.merayen.elastic.ui.objects.top.easymotion.EasyMotionBranch
+import net.merayen.elastic.ui.objects.top.views.View
+import net.merayen.elastic.ui.objects.top.views.editview.EditNodeView
 import net.merayen.elastic.ui.objects.top.views.nodeview.NodeView
 import net.merayen.elastic.util.MutablePoint
 import net.merayen.elastic.util.NodeUtil
@@ -36,7 +38,8 @@ abstract class UINode : UIObject(), FlexibleDimension, EasyMotionBranch {
 	final override val easyMotionBranch = object : Branch(this, this) {
 		init {
 			controls[setOf(KeyboardEvent.Keys.E)] = Control {
-				logDebug("Supposed to swap the view with editing the node")
+				val editNodeView = search.parentByType(View::class.java)!!.swap(EditNodeView::class)
+				editNodeView.editNode(this@UINode as INodeEditable)
 				null
 			}
 		}
