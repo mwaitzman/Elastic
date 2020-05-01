@@ -17,7 +17,7 @@ public class Synchronization {
 		/**
 		 * The time taken from requesting data to actually getting it (the time Elastic uses to process).
 		 */
-		public final AverageStat<Float> awaiting_data = new AverageStat<>(100);
+		public final AverageStat<Float> awaiting_data = new AverageStat<>(400);
 	}
 
 	public interface Handler {

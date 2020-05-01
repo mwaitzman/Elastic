@@ -6,13 +6,18 @@ import net.merayen.elastic.system.intercom.*
 import net.merayen.elastic.ui.Draw
 import net.merayen.elastic.ui.FlexibleDimension
 import net.merayen.elastic.ui.UIObject
+import net.merayen.elastic.ui.event.KeyboardEvent
+import net.merayen.elastic.ui.objects.top.easymotion.Branch
+import net.merayen.elastic.ui.objects.top.easymotion.EasyMotion
+import net.merayen.elastic.ui.objects.top.easymotion.EasyMotionBranch
 import net.merayen.elastic.ui.objects.top.views.nodeview.NodeView
 import net.merayen.elastic.util.MutablePoint
 import net.merayen.elastic.util.NodeUtil
 import net.merayen.elastic.util.Pacer
+import net.merayen.elastic.util.logDebug
 import java.util.*
 
-abstract class UINode : UIObject(), FlexibleDimension {
+abstract class UINode : UIObject(), FlexibleDimension, EasyMotionBranch {
 	lateinit var nodeId: String // Same ID as in the backend-system, netlist etc
 	override var layoutWidth = 100f
 	override var layoutHeight = 80f
@@ -28,6 +33,15 @@ abstract class UINode : UIObject(), FlexibleDimension {
 
 	var selected = false
 
+	final override val easyMotionBranch = object : Branch(this, this) {
+		init {
+			controls[setOf(KeyboardEvent.Keys.E)] = Control {
+				logDebug("Supposed to swap the view with editing the node")
+				null
+			}
+		}
+	}
+
 	val targetLocation = MutablePoint()
 	private val lastDraw = Pacer()
 
@@ -35,6 +49,7 @@ abstract class UINode : UIObject(), FlexibleDimension {
 	protected abstract fun onRemovePort(port: UIPort)  // Node can clean up any resources belonging to the UIPort
 	protected abstract fun onProperties(properties: BaseNodeProperties)
 	protected abstract fun onData(message: NodeDataMessage)
+
 
 	val UINet
 		get() = search.parentByType(NodeView::class.java)?.uiNet

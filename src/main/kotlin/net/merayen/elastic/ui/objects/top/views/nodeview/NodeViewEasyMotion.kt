@@ -117,26 +117,26 @@ class NodeViewEasyMotion(private val nodeView: NodeView) {
 					Mode.CONNECT -> {
 						val connectingPort = connectingPort
 						if (connectingPort == null) {
-							logError(this, "Connecting port is not set, but is still in Mode.connect")
+							logError("Connecting port is not set, but is still in Mode.connect")
 							this@NodeViewEasyMotion.connectingPort = null
 						} else {
 							if (c is UIPort) {
 								if (!connectingPort.search.hasParent(nodeView)) {
-									logDebug(this, "Node's port has been detached from NodeView. Leaving connect mode")
+									logDebug("Node's port has been detached from NodeView. Leaving connect mode")
 									mode = Mode.NORMAL
 								} else {
 									if ((if (connectingPort.output) 1 else 0) + (if (c.output) 1 else 0) != 1) {
-										logInfo(this, "Connecting ports are not compatible. Ignored. TODO warn user?")
+										logInfo("Connecting ports are not compatible. Ignored. TODO warn user?")
 									} else {
 										val message = NodeConnectMessage(connectingPort.uinode.nodeId, connectingPort.name, c.uinode.nodeId, c.name)
 										nodeView.sendMessage(message)
 										this@NodeViewEasyMotion.mode = Mode.NORMAL
 										this@NodeViewEasyMotion.connectingPort = null
-										logInfo(this, "Connecting ports")
+										logInfo("Connecting ports")
 									}
 								}
 							} else {
-								logInfo(this, "Can not connect to a non-port")
+								logInfo("Can not connect to a non-port")
 							}
 						}
 						null
@@ -175,7 +175,7 @@ class NodeViewEasyMotion(private val nodeView: NodeView) {
 				when (val c = navigation.current) {
 					is UIPort -> {
 						if (mode != Mode.NORMAL) {
-							logInfo(this, "Not in NORMAL-mode. Ignored connect request.")
+							logInfo("Not in NORMAL-mode. Ignored connect request.")
 						} else {
 							mode = Mode.CONNECT
 							connectingPort = c
@@ -266,7 +266,7 @@ class NodeViewEasyMotion(private val nodeView: NodeView) {
 
 			controls[setOf(KeyboardEvent.Keys.ESCAPE)] = Control {
 				if (mode != Mode.NORMAL) {
-					logDebug(this, "Leaving $mode mode")
+					logDebug("Leaving $mode mode")
 					mode = Mode.NORMAL
 				} else {
 					navigation.current = null

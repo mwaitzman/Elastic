@@ -1,7 +1,5 @@
 package net.merayen.elastic.util
 
-import kotlin.math.max
-
 enum class LogLevel(val level: Int) {
 	DEBUG(0),
 	INFO(1),
@@ -15,18 +13,15 @@ enum class LogLevel(val level: Int) {
  */
 var logLevel = LogLevel.DEBUG
 
-private fun log(what: Any, level: LogLevel, text: String) {
+private fun log(level: LogLevel, text: String) {
 	if (level.level < logLevel.level)
 		return
 
-	val packageList = what.javaClass.packageName.split("/")
-	val name = packageList.subList(max(0, packageList.size - 3), packageList.size).joinToString()
-
-	println("[${level.name}][$name]: $text")
+	println("[${level.name}][${Thread.currentThread().stackTrace[3].className}]: $text")
 }
 
-fun logDebug(what: Any, text: String) = log(what, LogLevel.DEBUG, text)
-fun logInfo(what: Any, text: String) = log(what, LogLevel.INFO, text)
-fun logWarning(what: Any, text: String) = log(what, LogLevel.WARNING, text)
-fun logError(what: Any, text: String) = log(what, LogLevel.ERROR, text)
-fun logCritical(what: Any, text: String) = log(what, LogLevel.CRITICAL, text)
+fun logDebug(text: String) = log(LogLevel.DEBUG, text)
+fun logInfo(text: String) = log(LogLevel.INFO, text)
+fun logWarning(text: String) = log(LogLevel.WARNING, text)
+fun logError(text: String) = log(LogLevel.ERROR, text)
+fun logCritical(text: String) = log(LogLevel.CRITICAL, text)

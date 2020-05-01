@@ -30,12 +30,21 @@ class UI : UINode(), EasyMotionBranch {
                 sendProperties(Properties(mix=value.toFloat()))
             }
         })
+
     }
 
     override fun onInit() {
         super.onInit()
         layoutWidth = 100f
         layoutHeight = 100f
+
+        easyMotionBranch.controls[setOf(KeyboardEvent.Keys.Q)] = Branch.Control {
+            Branch.Control.STEP_BACK
+        }
+
+        easyMotionBranch.controls[setOf(KeyboardEvent.Keys.F)] = Branch.Control {
+            slider
+        }
     }
 
     override fun onCreatePort(port: UIPort) {
@@ -71,18 +80,6 @@ class UI : UINode(), EasyMotionBranch {
             val mixData = instance.mix
             if (mixData != null)
                 slider.value = mixData.toDouble()
-        }
-    }
-
-    override val easyMotionBranch = object : Branch(this) {
-        init {
-            controls[setOf(KeyboardEvent.Keys.Q)] = Control {
-                Control.STEP_BACK
-            }
-
-            controls[setOf(KeyboardEvent.Keys.F)] = Control {
-                slider
-            }
         }
     }
 }

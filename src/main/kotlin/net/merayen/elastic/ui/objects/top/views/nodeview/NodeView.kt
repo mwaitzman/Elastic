@@ -343,7 +343,7 @@ class NodeView : View(), Revision, TaskQueue.RunsTasks {
 		val width = maxX - minX
 		val height = maxY - minY
 
-		logDebug(this, container.translation.scaleX.toString())
+		logDebug(container.translation.scaleX.toString())
 
 		val scale = max((width + 40) / layoutWidth, (height + 40) / layoutHeight)
 		container.zoomScaleXTarget = scale

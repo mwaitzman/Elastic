@@ -19,6 +19,10 @@ class UI : UINode(), INodeEditable, EasyMotionBranch {
 	override fun onInit() {
 		super.onInit()
 		titlebar.title = "Notes"
+
+		easyMotionBranch.controls[setOf(KeyboardEvent.Keys.Q)] = Branch.Control {
+			Branch.Control.STEP_BACK
+		}
 	}
 
 	override fun onCreatePort(port: UIPort) {
@@ -37,11 +41,4 @@ class UI : UINode(), INodeEditable, EasyMotionBranch {
 	override fun onData(message: NodeDataMessage) {}
 
 	override fun getNodeEditor() = Editor(nodeId)
-	override val easyMotionBranch = object : Branch(this) {
-		init {
-			controls[setOf(KeyboardEvent.Keys.Q)] = Control {
-				Control.STEP_BACK
-			}
-		}
-	}
 }

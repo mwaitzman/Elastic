@@ -48,6 +48,19 @@ class UI : UINode(), EasyMotionBranch {
 		this.titlebar.title = "Poly"
 	}
 
+	override fun onInit() {
+		super.onInit()
+
+		easyMotionBranch.controls[setOf(KeyboardEvent.Keys.Q)] = Branch.Control {
+			Branch.Control.STEP_BACK
+		}
+
+		easyMotionBranch.controls[setOf(KeyboardEvent.Keys.E)] = Branch.Control {
+			enter()
+			null
+		}
+	}
+
 	override fun onCreatePort(port: UIPort) {
 		if (port.name == "input") {
 			port.translation.y = 20f
@@ -68,19 +81,6 @@ class UI : UINode(), EasyMotionBranch {
 			val unisonData = properties.unison
 			if (unisonData != null)
 				unison.value = (unisonData - 1) / 31.0
-		}
-	}
-
-	override val easyMotionBranch = object : Branch(this) {
-		init {
-			controls[setOf(KeyboardEvent.Keys.Q)] = Control {
-				Control.STEP_BACK
-			}
-
-			controls[setOf(KeyboardEvent.Keys.E)] = Control {
-				enter()
-				null
-			}
 		}
 	}
 
