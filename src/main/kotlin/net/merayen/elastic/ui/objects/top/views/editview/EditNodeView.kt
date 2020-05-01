@@ -32,7 +32,7 @@ class EditNodeView : View() {
 		add(content)
 		add(bar)
 
-		content.translation.y = 20f
+		content.translation.y = 40f
 	}
 
 	override fun onDraw(draw: Draw) {

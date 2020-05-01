@@ -349,8 +349,8 @@ class NodeView : View(), Revision, TaskQueue.RunsTasks {
 		container.zoomScaleXTarget = scale
 		container.zoomScaleYTarget = scale
 
-		container.translateXTarget = -minX / container.zoomScaleXTarget + 20f
-		container.translateYTarget = -minY / container.zoomScaleYTarget + 20f
+		container.translateXTarget = -minX / container.zoomScaleXTarget + 40f
+		container.translateYTarget = -minY / container.zoomScaleYTarget + 40f
 
 	}
 

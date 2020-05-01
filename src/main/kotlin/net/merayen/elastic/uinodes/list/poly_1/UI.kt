@@ -18,7 +18,7 @@ class UI : UINode(), EasyMotionBranch {
 
 	init {
 		layoutWidth = 100f
-		layoutHeight = 100f
+		layoutHeight = 70f
 
 		val button = Button()
 		button.label = "Open"

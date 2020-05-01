@@ -1,6 +1,7 @@
 package net.merayen.elastic.ui.objects.components;
 
 import net.merayen.elastic.ui.Draw;
+import net.merayen.elastic.ui.FlexibleDimension;
 import net.merayen.elastic.ui.UIObject;
 import net.merayen.elastic.ui.event.KeyboardEvent;
 import net.merayen.elastic.ui.event.UIEvent;
@@ -13,8 +14,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
-public class ParameterSlider extends UIObject implements EasyMotionBranch {
-	float width = 80f;
+public class ParameterSlider extends UIObject implements EasyMotionBranch, FlexibleDimension {
+	private float layoutWidth = 80f;
+	private float layoutHeight = 15f;
+
 	public float scale = 1f;
 	public String label;
 
@@ -50,6 +53,26 @@ public class ParameterSlider extends UIObject implements EasyMotionBranch {
 		};
 	}
 
+	@Override
+	public float getLayoutWidth() {
+		return layoutWidth;
+	}
+
+	@Override
+	public void setLayoutWidth(float layoutWidth) {
+		this.layoutWidth = layoutWidth;
+	}
+
+	@Override
+	public float getLayoutHeight() {
+		return layoutHeight;
+	}
+
+	@Override
+	public void setLayoutHeight(float layoutHeight) {
+		this.layoutHeight = layoutHeight;
+	}
+
 	public interface Handler {
 		void onChange(double value, boolean programatic);
 
@@ -60,17 +83,21 @@ public class ParameterSlider extends UIObject implements EasyMotionBranch {
 
 	public void onInit() {
 		left_button = new Button();
+		left_button.setAutoDimension(false);
 		left_button.setLabel("-");
-		left_button.setLayoutWidth(11f);
+		left_button.setLayoutWidth(15f);
+		left_button.setLayoutHeight(layoutHeight);
 		add(left_button);
 
 		left_button.setHandler(this::down);
 
 		right_button = new Button();
-		right_button.getTranslation().x = width - 11f;
+		right_button.setAutoDimension(false);
+		right_button.getTranslation().x = layoutWidth - 15f;
 		right_button.getTranslation().y = 0f;
 		right_button.setLabel("+");
-		right_button.setLayoutWidth(11f);
+		right_button.setLayoutWidth(15f);
+		right_button.setLayoutHeight(layoutHeight);
 		add(right_button);
 
 		right_button.setHandler(this::up);
@@ -79,7 +106,7 @@ public class ParameterSlider extends UIObject implements EasyMotionBranch {
 		mousehandler.setHandler(new MouseHandler.Handler() {
 			@Override
 			public void onMouseDrag(MutablePoint start_point, MutablePoint offset) {
-				setValue(drag_value + (offset.getX() / width) * scale);
+				setValue(drag_value + (offset.getX() / layoutWidth) * scale);
 				if (handler != null) {
 					handler.onChange(value, false);
 					label = handler.onLabelUpdate(value);
@@ -95,24 +122,26 @@ public class ParameterSlider extends UIObject implements EasyMotionBranch {
 
 	@Override
 	public void onDraw(Draw draw) {
+		draw.setStroke(1f);
 		draw.setColor(50, 50, 50);
-		draw.fillRect(10, 0, width - 20f, 15f);
+		draw.line(15f, 0.5f, layoutWidth - 15, 0.5f);
+		draw.line(15f, layoutHeight - 0.5f, layoutWidth - 15, layoutHeight - 0.5f);
 
 		draw.setColor(150, 150, 150);
-		draw.fillRect(11f, 1f, width - 21f, 13f);
+		draw.fillRect(16f, 1f, layoutWidth - 32f, layoutHeight - 2);
 
 		double v = Math.max(Math.min(value, 1), 0);
 		draw.setColor(180, 180, 180);
-		draw.fillRect(11f, 1f, (width - 21f) * (float) v, 13f);
+		draw.fillRect(15f, 1f, (layoutWidth - 30f) * (float) v, layoutHeight - 2);
 
 		if (label != null) {
 			draw.setFont("Verdana", 10f);
 			draw.setColor(50, 50, 50); // Shadow
 			float text_width = draw.getTextWidth(label);
-			draw.text(label, width / 2 - text_width / 2 + 0.5f, 10.5f);
+			draw.text(label, layoutWidth / 2 - text_width / 2 + 0.5f, layoutHeight / 2f + 10f / 2 + 0.5f);
 
 			draw.setColor(200, 200, 200);
-			draw.text(label, width / 2 - text_width / 2, 10f);
+			draw.text(label, layoutWidth / 2 - text_width / 2, layoutHeight / 2f + 10f / 2);
 		}
 
 		super.onDraw(draw);

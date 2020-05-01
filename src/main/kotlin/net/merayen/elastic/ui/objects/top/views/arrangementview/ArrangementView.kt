@@ -17,7 +17,7 @@ class ArrangementView : View() {
 		super.onInit()
 
 		add(arrangement)
-		arrangement.translation.y = 20f
+		arrangement.translation.y = 40f
 
 		add(bar)
 
@@ -27,7 +27,7 @@ class ArrangementView : View() {
 	override fun onUpdate() {
 		super.onUpdate()
 		arrangement.layoutWidth = layoutWidth
-		arrangement.layoutHeight = layoutHeight - 20
+		arrangement.layoutHeight = layoutHeight - 40
 
 		val arrangementViewController = arrangementViewController
 		if (!loaded && arrangementViewController != null) {
