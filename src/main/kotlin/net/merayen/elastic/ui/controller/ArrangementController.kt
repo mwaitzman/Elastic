@@ -15,6 +15,7 @@ class ArrangementController internal constructor(top: Top) : Controller(top) {
 	class Hello : ElasticMessage
 
 	class PlayheadPositionChange(val beat: Float) : ElasticMessage
+	class PlayheadBarSelectionChange(val range: Pair<Int, Int>?) : ElasticMessage
 
 	var topNodeId: String? = null
 		private set // The topmost node. Automatically figured out upon restoration.
@@ -38,14 +39,21 @@ class ArrangementController internal constructor(top: Top) : Controller(top) {
 		when (message) {
 			is Hello -> arrangementViews
 			is PlayheadPositionChange -> {
-				val topNodeId = topNodeId
-				if (topNodeId != null)
+				val topNodeId = topNodeId ?: return
 					sendToBackend(NodePropertyMessage(
 						topNodeId,
 						net.merayen.elastic.backend.logicnodes.list.group_1.Properties(playheadPosition = message.beat)
 					))
-				else
-					println("Warning: ArrangementController: Top most node not set yet")
+			}
+			is PlayheadBarSelectionChange -> {
+				val topNodeId = topNodeId ?: return
+				sendToBackend(NodePropertyMessage(
+						topNodeId,
+						net.merayen.elastic.backend.logicnodes.list.group_1.Properties(
+								playheadBarSelectionStart = message.range?.first ?: 0,
+								playheadBarSelectionStop = message.range?.second ?: 0
+						)
+				))
 			}
 		}
 

@@ -21,6 +21,9 @@ data class Properties(
 	 */
 	var playheadPosition: Float? = null,
 
+	var playheadBarSelectionStart: Int? = null,
+	var playheadBarSelectionStop: Int? = null,
+
 	/**
 	 * Marks. Those are global, for all this node's children.
 	 */
