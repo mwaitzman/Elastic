@@ -9,6 +9,7 @@ import net.merayen.elastic.ui.objects.top.views.arrangementview.ArrangementView
 import net.merayen.elastic.ui.objects.top.views.editview.EditNodeView
 import net.merayen.elastic.ui.objects.top.views.filebrowserview.FileBrowserView
 import net.merayen.elastic.ui.objects.top.views.nodeview.NodeView
+import net.merayen.elastic.ui.objects.top.views.splashview.SplashView
 import net.merayen.elastic.ui.objects.top.views.statisticsview.StatisticsView
 import net.merayen.elastic.ui.objects.top.views.transportview.TransportView
 import kotlin.reflect.KClass

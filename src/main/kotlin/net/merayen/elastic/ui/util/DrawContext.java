@@ -17,15 +17,10 @@ import java.util.List;
  */
 public class DrawContext {
 	public final java.awt.Graphics2D graphics2d;
-
 	public final MutablePoint windowLocation;
-
 	private final Surface surface;
-
 	private int z_counter = 0;
-
 	public final List<UIEvent> incoming_events;
-
 	public final TranslationDataStack translation_stack = new TranslationDataStack();
 
 	/**

@@ -48,6 +48,17 @@ open class UIObject {
 		}
 
 	/**
+	 * Actual visible area for this UIObject.
+	 * The returned rectangle is in local coordinates.
+	 * Use this feature to skip drawing outside visible area.
+	 */
+	val visibility: Rect?
+		get() {
+			val clip = absoluteTranslation?.clip ?: return null
+			return getRelativeFromAbsolute(clip)
+		}
+
+	/**
 	 * Retrieves the deep outline of the object (including the children's outline)
 	 * TODO do clipping?
 	 */
@@ -192,8 +203,8 @@ open class UIObject {
 			return null // Haven't drawn anything yet
 
 		return MutablePoint(
-			(obj.absoluteTranslation!!.x - absoluteTranslation!!.x) * absoluteTranslation!!.scaleX,
-			(obj.absoluteTranslation!!.y - absoluteTranslation!!.y) * absoluteTranslation!!.scaleY
+				(obj.absoluteTranslation!!.x - absoluteTranslation!!.x) * absoluteTranslation!!.scaleX,
+				(obj.absoluteTranslation!!.y - absoluteTranslation!!.y) * absoluteTranslation!!.scaleY
 		)
 	}
 
@@ -202,8 +213,8 @@ open class UIObject {
 		val thisAT = absoluteTranslation ?: return null
 
 		return MutablePoint(
-			x = ((objAT.x + x / objAT.scaleX) - thisAT.x) * thisAT.scaleX,
-			y = ((objAT.y + y / objAT.scaleY) - thisAT.y) * thisAT.scaleY
+				x = ((objAT.x + x / objAT.scaleX) - thisAT.x) * thisAT.scaleX,
+				y = ((objAT.y + y / objAT.scaleY) - thisAT.y) * thisAT.scaleY
 		)
 	}
 
@@ -213,6 +224,12 @@ open class UIObject {
 	fun getRelativeFromAbsolute(x: Float, y: Float): MutablePoint {
 		val td = absoluteTranslation
 		return MutablePoint((x - td!!.x) * td.scaleX, (y - td.y) * td.scaleY)
+	}
+
+	fun getRelativeFromAbsolute(rect: Rect): Rect {
+		val p1 = getRelativeFromAbsolute(rect.x1, rect.y1)
+		val p2 = getRelativeFromAbsolute(rect.x2, rect.y2)
+		return Rect(p1.x, p1.y, p2.x, p2.y)
 	}
 
 	fun getAbsoluteDimension(width: Float, height: Float): MutableDimension? {
@@ -253,7 +270,7 @@ open class UIObject {
 	open fun sendMessage(message: ElasticMessage) {
 		val top = UINodeUtil.getTop(this)
 		top?.sendMessage(message)
-			?: System.out.printf("WARNING: Could not send message, UIObject %s is disconnected from Top()\n", javaClass.name)
+				?: System.out.printf("WARNING: Could not send message, UIObject %s is disconnected from Top()\n", javaClass.name)
 	}
 
 	/**

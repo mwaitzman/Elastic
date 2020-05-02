@@ -177,6 +177,5 @@ internal class UIClipTest {
 		innerObject.translation.y = -19f
 		Thread.sleep(10000)
 		assertTrue(innerObject.isVisible())
-
 	}
 }

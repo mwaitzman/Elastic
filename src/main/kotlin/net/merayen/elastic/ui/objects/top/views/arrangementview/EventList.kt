@@ -22,6 +22,7 @@ class EventList : UIObject(), FlexibleDimension {
 	private val arrangementEventTracks = UIObject()
 	private val eventPanes = AutoLayout(LayoutMethods.HorizontalBox())
 	private val playhead = Playhead()
+	private val playheadBar = PlayheadBar()
 
 	/**
 	 * Used to interpolate movement of the playhead
@@ -47,6 +48,8 @@ class EventList : UIObject(), FlexibleDimension {
 				handler?.onPlayheadMoved(beat)
 			}
 		}
+
+		add(playheadBar)
 	}
 
 	override fun onUpdate() {
