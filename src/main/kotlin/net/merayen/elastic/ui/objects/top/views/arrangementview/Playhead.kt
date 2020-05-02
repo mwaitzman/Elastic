@@ -7,7 +7,9 @@ import net.merayen.elastic.ui.event.UIEvent
 import net.merayen.elastic.ui.util.Movable
 
 /**
- * Movable playhead cursor
+ * Movable playhead cursor.
+ *
+ * TODO Move out as it is used by MidiRollEventZones too
  */
 class Playhead : UIObject(), FlexibleDimension {
 	interface Handler {

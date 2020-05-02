@@ -1,7 +1,9 @@
 package net.merayen.elastic.ui.objects.components.midiroll.eventzone
 
 import net.merayen.elastic.backend.data.eventdata.MidiData
+import net.merayen.elastic.backend.logicnodes.list.group_1.PlaybackStatusMessage
 import net.merayen.elastic.backend.logicnodes.list.midi_1.Properties
+import net.merayen.elastic.system.intercom.NodeMessage
 import net.merayen.elastic.system.intercom.NodePropertyMessage
 import net.merayen.elastic.ui.Draw
 import net.merayen.elastic.ui.UIObject
@@ -10,6 +12,7 @@ import net.merayen.elastic.ui.event.UIEvent
 import net.merayen.elastic.ui.objects.contextmenu.ContextMenu
 import net.merayen.elastic.ui.objects.contextmenu.ContextMenuItem
 import net.merayen.elastic.ui.objects.contextmenu.TextContextMenuItem
+import net.merayen.elastic.ui.objects.top.views.arrangementview.Playhead
 import net.merayen.elastic.util.MutablePoint
 import kotlin.math.max
 
@@ -27,6 +30,8 @@ class MidiRollEventZones(val octaveCount: Int) : UIObject() {
 
 		fun onGhostNote(tangent: Short)
 		fun onGhostNoteOff(tangent: Short)
+
+		fun onPlayheadMoved(beat: Float)
 	}
 
 	var layoutHeight = 0f
@@ -40,6 +45,8 @@ class MidiRollEventZones(val octaveCount: Int) : UIObject() {
 	private val contextMenu = ContextMenu(this, MouseEvent.Button.RIGHT)
 	private val createEventZone = TextContextMenuItem("Create zone")
 
+	private val playhead = Playhead()
+
 	override fun onInit() {
 		contextMenu.addMenuItem(createEventZone)
 
@@ -50,35 +57,49 @@ class MidiRollEventZones(val octaveCount: Int) : UIObject() {
 
 			override fun onMouseDown(position: MutablePoint) {}
 		}
+
+		playhead.handler = object : Playhead.Handler {
+			override fun onMoved(beat: Float) {
+				handler?.onPlayheadMoved(beat)
+			}
+		}
+		add(playhead)
 	}
 
-	fun handleMessage(message: NodePropertyMessage) {
-		val data = message.instance as Properties
+	fun handleMessage(message: NodeMessage) {
+		when (message) {
+			is NodePropertyMessage -> {
+				val data = message.instance as Properties
 
-		val newEventZones = data.eventZones
+				val newEventZones = data.eventZones
 
-		if (newEventZones != null) {
-			eventZones.forEach { remove(it) }
-			eventZones.clear()
+				if (newEventZones != null) {
+					eventZones.forEach { remove(it) }
+					eventZones.clear()
 
-			for (newZone in newEventZones) {
-				val newZoneId = newZone.id!!
-				val m = MidiRollEventZone(newZoneId, this)
-				m.start = newZone.start!!
-				m.length = newZone.length!!
-				m.handler = object: MidiRollEventZone.Handler {
-					override fun onResize(offsetPosition: Float, offsetLength: Float) {
-						handler?.onChangeEventZone(newZoneId, max(0f, m.start + offsetPosition), max(0f, m.length + offsetLength))
+					for (newZone in newEventZones) {
+						val newZoneId = newZone.id!!
+						val m = MidiRollEventZone(newZoneId, this)
+						m.start = newZone.start!!
+						m.length = newZone.length!!
+						m.handler = object : MidiRollEventZone.Handler {
+							override fun onResize(offsetPosition: Float, offsetLength: Float) {
+								handler?.onChangeEventZone(newZoneId, max(0f, m.start + offsetPosition), max(0f, m.length + offsetLength))
+							}
+						}
+
+						m.loadMidi(newZone.midi!!)
+
+						eventZones.add(m)
+						add(m)
 					}
+
+					eventZones.sortBy { it.start }
 				}
-
-				m.loadMidi(newZone.midi!!)
-
-				eventZones.add(m)
-				add(m)
 			}
-
-			eventZones.sortBy { it.start }
+			is PlaybackStatusMessage -> {
+				playhead.setPosition(message.currentPlayheadPosition)
+			}
 		}
 	}
 
@@ -92,6 +113,9 @@ class MidiRollEventZones(val octaveCount: Int) : UIObject() {
 			zone.layoutHeight = layoutHeight
 			zone.beatWidth = beatWidth
 		}
+
+		playhead.layoutHeight = layoutHeight
+		playhead.beatWidth = beatWidth
 	}
 
 	override fun onEvent(event: UIEvent) {

@@ -1,6 +1,7 @@
 package net.merayen.elastic.ui.objects.components.midiroll
 
 import net.merayen.elastic.backend.data.eventdata.MidiData
+import net.merayen.elastic.system.intercom.NodeMessage
 import net.merayen.elastic.system.intercom.NodePropertyMessage
 import net.merayen.elastic.ui.FlexibleDimension
 import net.merayen.elastic.ui.UIObject
@@ -19,6 +20,8 @@ class MidiRoll(private val handler: Handler) : UIObject(), FlexibleDimension {
 		fun onCreateEventZone(start: Float, length: Float)
 		fun onChangeEventZone(eventZoneId: String, start: Float, length: Float)
 		fun onRemoveEventZone(eventZoneId: String)
+
+		fun onPlayheadMoved(beat: Float)
 	}
 
 	override var layoutWidth = 100f
@@ -50,6 +53,10 @@ class MidiRoll(private val handler: Handler) : UIObject(), FlexibleDimension {
 			override fun onGhostNoteOff(tangent: Short) {
 				piano.unmarkAllTangents()
 			}
+
+			override fun onPlayheadMoved(beat: Float) {
+				handler?.onPlayheadMoved(beat)
+			}
 		}
 		piano = Piano(OCTAVE_COUNT, object : Piano.Handler {
 			override fun onUp(tangent_no: Int) {
@@ -76,7 +83,7 @@ class MidiRoll(private val handler: Handler) : UIObject(), FlexibleDimension {
 		}
 	}
 
-	fun handleMessage(message: NodePropertyMessage) {
+	fun handleMessage(message: NodeMessage) {
 		eventZones.handleMessage(message)
 	}
 }
