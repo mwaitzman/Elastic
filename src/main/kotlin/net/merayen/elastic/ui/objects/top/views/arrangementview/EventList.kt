@@ -11,7 +11,7 @@ class EventList : UIObject(), FlexibleDimension {
 		fun onPlayheadMoved(beat: Float)
 	}
 
-	override var layoutWidth = 100f
+	override var layoutWidth = 1000f
 	override var layoutHeight = 100f
 
 	var beatWidth = 20f
@@ -37,6 +37,7 @@ class EventList : UIObject(), FlexibleDimension {
 		add(arrangementEventTracks)
 		add(arrangementGrid)
 		add(eventPanes)
+		add(playheadBar)
 		add(playhead) // Always on top
 
 		arrangementEventTracks.translation.y = 20f
@@ -49,7 +50,15 @@ class EventList : UIObject(), FlexibleDimension {
 			}
 		}
 
-		add(playheadBar)
+		playheadBar.handler = object : PlayheadBar.Handler {
+			override fun onMovePlayhead(beat: Float) {
+				handler?.onPlayheadMoved(beat)
+			}
+
+			override fun onSelectionChange() {
+				println("Changed selection to ${playheadBar.selectionRange}")
+			}
+		}
 	}
 
 	override fun onUpdate() {
@@ -73,6 +82,8 @@ class EventList : UIObject(), FlexibleDimension {
 		// Smooth cursor motion when playing because
 		if (isPlaying)
 			playhead.setPosition(playheadPosition + (System.currentTimeMillis() - lastPlayheadPositionChange) / 1000f * (bpm / 60f))
+
+		playheadBar.beatWidth = beatWidth
 	}
 
 	fun addEventPane(eventPane: EventPane) = this.eventPanes.add(eventPane)

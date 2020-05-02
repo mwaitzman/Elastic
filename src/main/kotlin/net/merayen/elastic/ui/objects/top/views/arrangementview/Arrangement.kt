@@ -63,8 +63,8 @@ class Arrangement : UIObject() {
 		arrangementListScroll.layoutWidth = layoutWidth
 		arrangementListScroll.layoutHeight = layoutHeight - 20
 
-		eventList.layoutWidth = layoutWidth - 100
-		eventList.layoutHeight = layoutHeight - 20
+		//eventList.layoutWidth = layoutWidth - 100
+		//eventList.layoutHeight = layoutHeight - 20
 
 		for (track in tracks) // Make EventPane keep up with the height of the TrackPane
 			track.eventPane.layoutHeight = track.trackPane.layoutHeight

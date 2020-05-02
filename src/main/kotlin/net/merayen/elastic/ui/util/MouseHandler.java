@@ -7,7 +7,6 @@ import net.merayen.elastic.ui.event.MouseEvent;
 /**
  * Helper class to make an UIObject moveable.
  * Tightly coupled to UIObjects.
- *
  */
 public class MouseHandler {
 	public static abstract class Handler {
