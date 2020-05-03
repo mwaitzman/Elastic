@@ -7,8 +7,6 @@ class Group1InputFrameData(
 		val startPlaying: Boolean? = null,
 		val stopPlaying: Boolean? = null,
 		val playheadPosition: Float? = null,
-		val rangeSelectionStart: Float? = null,
-		val rangeSelectionStop: Float? = null,
 		val bpm: Double? = null,
 		val sampleRate: Int? = null,
 		val bufferSize: Int? = null,

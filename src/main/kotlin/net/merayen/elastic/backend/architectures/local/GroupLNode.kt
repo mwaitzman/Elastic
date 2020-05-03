@@ -72,4 +72,9 @@ interface GroupLNode {
 	 * correct inner state.
 	 */
 	fun playStartedCount(): Long
+
+	/**
+	 * Range the user has set in the arrangement view. If not null, we should only loop in the range.
+	 */
+	fun getRangeSelection(): Pair<Float, Float>?
 }

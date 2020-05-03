@@ -21,6 +21,8 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 	private var currentCursorTimePosition = 0.0
 	private var channelCount = 1
 
+	private var rangeSelection: Pair<Float,Float>? = null
+
 	private var playCount = 0L
 
 	private var bpm = 120.0
@@ -85,6 +87,8 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 		return playCount
 	}
 
+	override fun getRangeSelection() = rangeSelection
+
 	override fun onInit() {}
 	override fun onSpawnProcessor(lp: LocalProcessor) {}
 
@@ -108,6 +112,7 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 			println("Playhead position moved: $playheadPosition")
 		}
 
+
 		if (bpm != null)
 			this.bpm = bpm
 	}
@@ -118,6 +123,14 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 		val channelCount = instance.channelCount
 		if (channelCount != null)
 			this.channelCount = channelCount
+
+		val rangeSelectionStart = instance.rangeSelectionStart
+		val rangeSelectionStop = instance.rangeSelectionStop
+
+		if (rangeSelectionStart != null && rangeSelectionStop != null) {
+			this.rangeSelection = Pair(rangeSelectionStart, rangeSelectionStop)
+		} else if (rangeSelectionStart == rangeSelectionStop)
+			this.rangeSelection = null
 	}
 
 	override fun onFinishFrame() {

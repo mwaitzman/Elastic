@@ -76,8 +76,6 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 			startPlaying = startPlaying,
 			stopPlaying = stopPlaying,
 			playheadPosition = playheadPosition,
-			rangeSelectionStart = rangeSelectionStart,
-			rangeSelectionStop = rangeSelectionStop,
 			bpm = bpm, // TODO remove this and use a curve instead
 			sampleRate = sampleRate,
 			bufferSize = bufferSize,

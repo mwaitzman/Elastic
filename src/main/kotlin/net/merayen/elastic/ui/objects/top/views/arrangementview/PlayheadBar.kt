@@ -56,7 +56,6 @@ class PlayheadBar : UIObject(), FlexibleDimension {
 			override fun onMouseDown(position: MutablePoint) {
 				selectionPosition1 = (position.x / beatWidth).roundToInt().toFloat()
 				selectionPosition2 = (position.x / beatWidth).roundToInt().toFloat()
-				println("Start: $selectionPosition1 $selectionPosition2")
 				handler?.onSelectionChange()
 			}
 
