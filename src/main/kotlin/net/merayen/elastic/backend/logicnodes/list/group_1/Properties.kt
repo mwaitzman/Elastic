@@ -8,29 +8,28 @@ import net.merayen.elastic.backend.nodes.BaseNodeProperties
  * @param length How many beats that the
  */
 data class Properties(
-	var bufferSize: Int? = null, // TODO implement support onto group_1-node
-	var depth: Int? = null, // TODO implement support onto group_1-node
-	var sampleRate: Int? = null, // TODO implement support onto group_1-node
-	var channelCount: Int? = null,
-	var bpm: Int? = null,
-	var bpmCurve: FloatArray? = null,
-	var length: Int? = null,
+		var bufferSize: Int? = null, // TODO implement support onto group_1-node
+		var depth: Int? = null, // TODO implement support onto group_1-node
+		var sampleRate: Int? = null, // TODO implement support onto group_1-node
+		var channelCount: Int? = null,
+		var bpm: Int? = null,
+		var bpmCurve: FloatArray? = null,
+		var length: Int? = null,
 
-	/**
+		/**
 	 * Position of the playhead, in beats.
 	 */
 	var playheadPosition: Float? = null,
 
-	var playheadBarSelectionStart: Int? = null,
-	var playheadBarSelectionStop: Int? = null,
+		var rangeSelectionStart: Float? = null,
+		var rangeSelectionStop: Float? = null,
 
-	/**
+		/**
 	 * Marks. Those are global, for all this node's children.
 	 */
 	var marks: MutableList<Mark>? = null
 
 ) : BaseNodeProperties() {
-
 	data class Mark(
 		var mark: Char? = null,
 		var nodeId: String? = null,

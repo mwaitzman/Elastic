@@ -43,18 +43,15 @@ class Arrangement : UIObject() {
 			init {
 				label = "New track"
 				handler = object : IHandler {
-					override fun onClick() {
-						TODO("Ask user which type of track to create and send a message to backend")
-					}
+					override fun onClick() = TODO("Ask user which type of track to create and send a message to backend")
 				}
 				disabled = true // For now
 			}
 		})
 
 		eventList.handler = object : EventList.Handler {
-			override fun onPlayheadMoved(beat: Float) {
-				sendMessage(ArrangementController.PlayheadPositionChange(beat))
-			}
+			override fun onPlayheadMoved(beat: Float) = sendMessage(ArrangementController.PlayheadPositionChange(beat))
+			override fun onRangeChange(range: Pair<Float, Float>?) = sendMessage(ArrangementController.RangeSelectionChange(range))
 		}
 	}
 
@@ -117,19 +114,14 @@ class Arrangement : UIObject() {
 					eventList.addEventPane(midiTrack.eventPane)
 					tracks.add(midiTrack)
 				}
+				eventList.handleMessage(message)
 			}
 			is PlaybackStatusMessage -> eventList.handleMessage(message)
+			is NodePropertyMessage -> eventList.handleMessage(message)
 		}
 
 		for (track in tracks) {
 			if (message is NodePropertyMessage) {
-				val instance = message.instance
-				if (instance is net.merayen.elastic.backend.logicnodes.list.group_1.Properties) {
-					val playheadPosition = instance.playheadPosition
-					if (playheadPosition != null)
-						eventList.setPlayheadPosition(playheadPosition)
-				}
-
 				if (message.nodeId == track.nodeId)
 					track.onParameter(message.instance)
 			}

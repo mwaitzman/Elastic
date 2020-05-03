@@ -1,14 +1,19 @@
 package net.merayen.elastic.ui.objects.top.views.arrangementview
 
 import net.merayen.elastic.backend.logicnodes.list.group_1.PlaybackStatusMessage
+import net.merayen.elastic.system.intercom.CreateNodeMessage
+import net.merayen.elastic.system.intercom.ElasticMessage
+import net.merayen.elastic.system.intercom.NodePropertyMessage
 import net.merayen.elastic.ui.FlexibleDimension
 import net.merayen.elastic.ui.UIObject
+import net.merayen.elastic.ui.controller.ArrangementController
 import net.merayen.elastic.ui.objects.components.autolayout.AutoLayout
 import net.merayen.elastic.ui.objects.components.autolayout.LayoutMethods
 
 class EventList : UIObject(), FlexibleDimension {
 	interface Handler {
 		fun onPlayheadMoved(beat: Float)
+		fun onRangeChange(range: Pair<Float, Float>?)
 	}
 
 	override var layoutWidth = 1000f
@@ -23,6 +28,8 @@ class EventList : UIObject(), FlexibleDimension {
 	private val eventPanes = AutoLayout(LayoutMethods.HorizontalBox())
 	private val playhead = Playhead()
 	private val playheadBar = PlayheadBar()
+
+	private var topNodeId: String? = null
 
 	/**
 	 * Used to interpolate movement of the playhead
@@ -56,7 +63,8 @@ class EventList : UIObject(), FlexibleDimension {
 			}
 
 			override fun onSelectionChange() {
-				println("Changed selection to ${playheadBar.selectionRange}")
+				handler?.onRangeChange(playheadBar.selectionRange)
+				println("asdf ${playheadBar.selectionRange}")
 			}
 		}
 	}
@@ -89,15 +97,37 @@ class EventList : UIObject(), FlexibleDimension {
 	fun addEventPane(eventPane: EventPane) = this.eventPanes.add(eventPane)
 	fun removeEventPane(eventPane: EventPane) = this.eventPanes.remove(eventPane)
 
-	fun handleMessage(message: PlaybackStatusMessage) {
-		playhead.setPosition(message.currentPlayheadPosition)
-		bpm = message.currentBPM
-		isPlaying = message.isPlaying
-		playheadPosition = message.currentPlayheadPosition
-		lastPlayheadPositionChange = System.currentTimeMillis()
-	}
+	fun handleMessage(message: ElasticMessage) {
+		when (message) {
+			is CreateNodeMessage -> {
+				if (message.parent == null)
+					topNodeId = message.nodeId
+			}
+			is PlaybackStatusMessage -> {
+				playhead.setPosition(message.currentPlayheadPosition)
+				bpm = message.currentBPM
+				isPlaying = message.isPlaying
+				playheadPosition = message.currentPlayheadPosition
+				lastPlayheadPositionChange = System.currentTimeMillis()
+			}
+			is NodePropertyMessage -> {
+				val instance = message.instance
+				if (
+						instance is net.merayen.elastic.backend.logicnodes.list.group_1.Properties &&
+						topNodeId != null &&
+						message.nodeId == topNodeId
+				) {
+					val playheadPosition = instance.playheadPosition
+					val rangeSelectionStart = instance.rangeSelectionStart
+					val rangeSelectionStop = instance.rangeSelectionStop
 
-	fun setPlayheadPosition(beat: Float) {
-		playhead.setPosition(beat)
+					if (playheadPosition != null)
+						playhead.setPosition(playheadPosition)
+
+					if (rangeSelectionStart != null && rangeSelectionStop != null)
+						playheadBar.selectionRange = Pair(rangeSelectionStart, rangeSelectionStop)
+				}
+			}
+		}
 	}
 }

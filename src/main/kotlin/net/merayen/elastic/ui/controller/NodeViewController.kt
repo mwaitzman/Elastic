@@ -12,14 +12,13 @@ import java.util.*
  * Handles messages sent and received by nodes.
  */
 class NodeViewController internal constructor(top: Top) : Controller(top) {
+	var topNodeId: String? = null
+		private set // The topmost node. Automatically figured out upon restoration.
 
 	/**
 	 * NetList accumulated based on all the incoming messages.
 	 * We can then resend messages when requested.
 	 */
-	var topNodeId: String? = null
-		private set // The topmost node. Automatically figured out upon restoration.
-
 	val netList: NetList
 		get() = top.netlist
 

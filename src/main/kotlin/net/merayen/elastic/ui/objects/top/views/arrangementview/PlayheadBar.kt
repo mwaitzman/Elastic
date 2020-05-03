@@ -21,13 +21,13 @@ class PlayheadBar : UIObject(), FlexibleDimension {
 	var beatWidth = 10f
 	var division = 4
 
-	private var selectionPosition1 = 0
-	private var selectionPosition2 = 0
+	private var selectionPosition1 = 0f
+	private var selectionPosition2 = 0f
 
 	/**
 	 * Selection range in beats.
 	 */
-	var selectionRange: Pair<Int, Int>?
+	var selectionRange: Pair<Float, Float>?
 		get() {
 			return when {
 				selectionPosition1 < selectionPosition2 -> Pair(selectionPosition1, selectionPosition2)
@@ -36,12 +36,15 @@ class PlayheadBar : UIObject(), FlexibleDimension {
 			}
 		}
 		set(value) {
+			if (mouseHandler.isDown)
+				return
+
 			if (value != null) {
 				selectionPosition1 = value.first
 				selectionPosition2 = value.second
 			} else {
-				selectionPosition1 = 0
-				selectionPosition2 = 0
+				selectionPosition1 = 0f
+				selectionPosition2 = 0f
 			}
 		}
 
@@ -53,15 +56,15 @@ class PlayheadBar : UIObject(), FlexibleDimension {
 		mouseHandler.setHandler(object : MouseHandler.Handler() {
 			override fun onMouseDown(position: MutablePoint) {
 				handler?.onMovePlayhead(position.x / beatWidth) // TODO nah, should move the playhead by clicking in the EventList instead?
-				selectionPosition1 = (position.x / beatWidth).roundToInt()
-				selectionPosition2 = (position.x / beatWidth).roundToInt()
-
+				selectionPosition1 = (position.x / beatWidth).roundToInt().toFloat()
+				selectionPosition2 = (position.x / beatWidth).roundToInt().toFloat()
+				println("Start: $selectionPosition1 $selectionPosition2")
 				handler?.onSelectionChange()
 			}
 
 			override fun onMouseDrag(position: MutablePoint, offset: MutablePoint) {
 				val before = selectionRange
-				selectionPosition2 = (position.x / beatWidth).roundToInt()
+				selectionPosition2 = (position.x / beatWidth).roundToInt().toFloat()
 				if (selectionRange != before)
 					handler?.onSelectionChange()
 			}

@@ -15,6 +15,8 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 	private var startPlaying = false
 	private var stopPlaying = false
 	private var playheadPosition: Float? = null
+	private var rangeSelectionStart: Float? = null
+	private var rangeSelectionStop: Float? = null
 	private var bpm = 120.0
 	private var isPlaying = false
 
@@ -51,12 +53,20 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 
 		val bpm = instance.bpm
 		val playheadPosition = instance.playheadPosition
+		val rangeSelectionStart = instance.rangeSelectionStart
+		val rangeSelectionStop = instance.rangeSelectionStop
 
 		if (bpm != null)
 			this.bpm = bpm.toDouble()
 
 		if (playheadPosition != null)
 			this.playheadPosition = playheadPosition
+
+		if (rangeSelectionStart != null && rangeSelectionStop != null) {
+			this.rangeSelectionStart = rangeSelectionStart
+			this.rangeSelectionStop = rangeSelectionStop
+			//println("Set range $rangeSelectionStart to $rangeSelectionStop")
+		}
 
 		updateProperties(instance)
 	}
@@ -67,6 +77,8 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 			startPlaying = startPlaying,
 			stopPlaying = stopPlaying,
 			playheadPosition = playheadPosition,
+			rangeSelectionStart = rangeSelectionStart,
+			rangeSelectionStop = rangeSelectionStop,
 			bpm = bpm, // TODO remove this and use a curve instead
 			sampleRate = sampleRate,
 			bufferSize = bufferSize,

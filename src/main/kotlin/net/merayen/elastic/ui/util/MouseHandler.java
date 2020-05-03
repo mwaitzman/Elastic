@@ -129,4 +129,8 @@ public class MouseHandler {
 	public MouseEvent getMouseEvent() {
 		return currentMouseEvent;
 	}
+
+	public boolean isDown() {
+		return mouse_down;
+	}
 }

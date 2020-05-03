@@ -1,6 +1,5 @@
 package net.merayen.elastic.ui.controller
 
-import net.merayen.elastic.backend.logicnodes.list.group_1.PlaybackStatusMessage
 import net.merayen.elastic.system.intercom.CreateNodeMessage
 import net.merayen.elastic.system.intercom.ElasticMessage
 import net.merayen.elastic.system.intercom.NodePropertyMessage
@@ -15,7 +14,7 @@ class ArrangementController internal constructor(top: Top) : Controller(top) {
 	class Hello : ElasticMessage
 
 	class PlayheadPositionChange(val beat: Float) : ElasticMessage
-	class PlayheadBarSelectionChange(val range: Pair<Int, Int>?) : ElasticMessage
+	class RangeSelectionChange(val range: Pair<Float, Float>?) : ElasticMessage
 
 	var topNodeId: String? = null
 		private set // The topmost node. Automatically figured out upon restoration.
@@ -45,17 +44,16 @@ class ArrangementController internal constructor(top: Top) : Controller(top) {
 						net.merayen.elastic.backend.logicnodes.list.group_1.Properties(playheadPosition = message.beat)
 					))
 			}
-			is PlayheadBarSelectionChange -> {
+			is RangeSelectionChange -> {
 				val topNodeId = topNodeId ?: return
 				sendToBackend(NodePropertyMessage(
 						topNodeId,
 						net.merayen.elastic.backend.logicnodes.list.group_1.Properties(
-								playheadBarSelectionStart = message.range?.first ?: 0,
-								playheadBarSelectionStop = message.range?.second ?: 0
+								rangeSelectionStart = message.range?.first ?: 0f,
+								rangeSelectionStop = message.range?.second ?: 0f
 						)
 				))
 			}
 		}
-
 	}
 }
