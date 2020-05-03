@@ -11,7 +11,6 @@ import kotlin.math.roundToInt
 
 class PlayheadBar : UIObject(), FlexibleDimension {
 	interface Handler {
-		fun onMovePlayhead(beat: Float)
 		fun onSelectionChange()
 	}
 
@@ -55,7 +54,6 @@ class PlayheadBar : UIObject(), FlexibleDimension {
 	override fun onInit() {
 		mouseHandler.setHandler(object : MouseHandler.Handler() {
 			override fun onMouseDown(position: MutablePoint) {
-				handler?.onMovePlayhead(position.x / beatWidth) // TODO nah, should move the playhead by clicking in the EventList instead?
 				selectionPosition1 = (position.x / beatWidth).roundToInt().toFloat()
 				selectionPosition2 = (position.x / beatWidth).roundToInt().toFloat()
 				println("Start: $selectionPosition1 $selectionPosition2")

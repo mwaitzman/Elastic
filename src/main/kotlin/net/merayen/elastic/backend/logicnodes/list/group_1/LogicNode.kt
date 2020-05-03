@@ -65,7 +65,6 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 		if (rangeSelectionStart != null && rangeSelectionStop != null) {
 			this.rangeSelectionStart = rangeSelectionStart
 			this.rangeSelectionStop = rangeSelectionStop
-			//println("Set range $rangeSelectionStart to $rangeSelectionStop")
 		}
 
 		updateProperties(instance)

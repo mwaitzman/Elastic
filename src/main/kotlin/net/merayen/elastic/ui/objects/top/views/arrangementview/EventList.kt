@@ -58,13 +58,8 @@ class EventList : UIObject(), FlexibleDimension {
 		}
 
 		playheadBar.handler = object : PlayheadBar.Handler {
-			override fun onMovePlayhead(beat: Float) {
-				handler?.onPlayheadMoved(beat)
-			}
-
 			override fun onSelectionChange() {
 				handler?.onRangeChange(playheadBar.selectionRange)
-				println("asdf ${playheadBar.selectionRange}")
 			}
 		}
 	}
