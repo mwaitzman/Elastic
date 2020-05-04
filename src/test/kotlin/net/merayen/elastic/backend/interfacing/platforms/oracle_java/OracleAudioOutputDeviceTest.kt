@@ -36,23 +36,35 @@ class OracleAudioOutputDeviceTest {
 	fun testOutputFlow() {
 		val outputDevice = outputDevice!!
 
-		outputDevice.configure(44100, 1, 16)
+		outputDevice.configure(44100, 2, 16)
 
 		outputDevice.begin()
 
 		var pos = 0
 		//while(true) {
-			for (chunk in 1 until 5) {
+			for (chunk in 4 until 5) {
 				val audio = FloatArray(2.0.pow(8 + 4 - chunk).toInt())
 				println("Audio should sound good with no hick ups, buffer: ${audio.size}")
 
-				//for (x in 0 until 50*chunk) {
-				val t = System.currentTimeMillis() + 2000
+				val t = System.currentTimeMillis() + 2000000
+				var l = System.currentTimeMillis()
+				var samplesSent = 0
 				while (t > System.currentTimeMillis()) {
-					for (i in 0 until audio.size)
-						audio[i] = sin(pos++ / 44100.0 * 1000 * 2 * PI).toFloat() * 0.1f
+					for (i in audio.indices)
+						audio[i] = sin(pos++ / 44100.0 * 1000 * 2 * PI).toFloat() * 0.01f
+
+					if (Math.random() > 0.2)
+						Thread.sleep(1)
 
 					outputDevice.write(audio)
+
+					samplesSent += audio.size
+
+					if (l + 1000 < System.currentTimeMillis()) {
+						println("Samples sent: $samplesSent/s")
+						samplesSent = 0
+						l = System.currentTimeMillis()
+					}
 				}
 			}
 		//}
