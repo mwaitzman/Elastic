@@ -76,5 +76,5 @@ interface GroupLNode {
 	/**
 	 * Range the user has set in the arrangement view. If not null, we should only loop in the range.
 	 */
-	fun getRangeSelection(): Pair<Float, Float>?
+	fun getRangeSelection(): Pair<Float, Float>
 }

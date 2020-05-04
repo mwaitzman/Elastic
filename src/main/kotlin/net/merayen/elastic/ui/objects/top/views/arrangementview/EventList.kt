@@ -6,14 +6,13 @@ import net.merayen.elastic.system.intercom.ElasticMessage
 import net.merayen.elastic.system.intercom.NodePropertyMessage
 import net.merayen.elastic.ui.FlexibleDimension
 import net.merayen.elastic.ui.UIObject
-import net.merayen.elastic.ui.controller.ArrangementController
 import net.merayen.elastic.ui.objects.components.autolayout.AutoLayout
 import net.merayen.elastic.ui.objects.components.autolayout.LayoutMethods
 
 class EventList : UIObject(), FlexibleDimension {
 	interface Handler {
 		fun onPlayheadMoved(beat: Float)
-		fun onRangeChange(range: Pair<Float, Float>?)
+		fun onRangeChange(range: Pair<Float, Float>)
 	}
 
 	override var layoutWidth = 1000f

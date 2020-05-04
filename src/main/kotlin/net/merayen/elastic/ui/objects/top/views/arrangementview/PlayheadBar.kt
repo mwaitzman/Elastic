@@ -26,12 +26,12 @@ class PlayheadBar : UIObject(), FlexibleDimension {
 	/**
 	 * Selection range in beats.
 	 */
-	var selectionRange: Pair<Float, Float>?
+	var selectionRange: Pair<Float, Float>
 		get() {
 			return when {
 				selectionPosition1 < selectionPosition2 -> Pair(selectionPosition1, selectionPosition2)
 				selectionPosition1 > selectionPosition2 -> Pair(selectionPosition2, selectionPosition1)
-				else -> null
+				else -> Pair(0f, 0f)
 			}
 		}
 		set(value) {

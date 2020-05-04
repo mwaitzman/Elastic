@@ -14,7 +14,7 @@ class ArrangementController internal constructor(top: Top) : Controller(top) {
 	class Hello : ElasticMessage
 
 	class PlayheadPositionChange(val beat: Float) : ElasticMessage
-	class RangeSelectionChange(val range: Pair<Float, Float>?) : ElasticMessage
+	class RangeSelectionChange(val range: Pair<Float, Float>) : ElasticMessage
 
 	var topNodeId: String? = null
 		private set // The topmost node. Automatically figured out upon restoration.

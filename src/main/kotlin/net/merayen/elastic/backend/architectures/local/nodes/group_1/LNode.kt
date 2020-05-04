@@ -18,10 +18,11 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 	private var currentBeatPosition = 0.0
 
 	private var currentCursorBeatPosition = 0.0
+	private var lastCursorBeatPosition = 0.0
 	private var currentCursorTimePosition = 0.0
 	private var channelCount = 1
 
-	private var rangeSelection: Pair<Float,Float>? = null
+	private var rangeSelection = Pair(0f, 0f)
 
 	private var playCount = 0L
 
@@ -106,12 +107,16 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 		if (stopPlaying)
 			playing = false
 
+		val rangeSelection = rangeSelection
 		if (playheadPosition != null) {
 			this.currentCursorBeatPosition = playheadPosition.toDouble()
 			playCount++
-			println("Playhead position moved: $playheadPosition")
+		} else if (rangeSelection.first != rangeSelection.second && isPlaying()) { // If there is a range selection set, see if we should move the playhead to the beginning if it has reached the end
+			if (currentCursorBeatPosition >= rangeSelection.second)
+				currentCursorBeatPosition = rangeSelection.first.toDouble()
 		}
 
+		lastCursorBeatPosition = currentCursorBeatPosition
 
 		if (bpm != null)
 			this.bpm = bpm
@@ -127,10 +132,8 @@ class LNode : LocalNode(LProcessor::class.java), GroupLNode {
 		val rangeSelectionStart = instance.rangeSelectionStart
 		val rangeSelectionStop = instance.rangeSelectionStop
 
-		if (rangeSelectionStart != null && rangeSelectionStop != null) {
+		if (rangeSelectionStart != null && rangeSelectionStop != null)
 			this.rangeSelection = Pair(rangeSelectionStart, rangeSelectionStop)
-		} else if (rangeSelectionStart == rangeSelectionStop)
-			this.rangeSelection = null
 	}
 
 	override fun onFinishFrame() {

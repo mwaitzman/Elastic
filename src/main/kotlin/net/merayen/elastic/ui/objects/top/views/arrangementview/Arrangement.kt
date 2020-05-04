@@ -51,7 +51,7 @@ class Arrangement : UIObject() {
 
 		eventList.handler = object : EventList.Handler {
 			override fun onPlayheadMoved(beat: Float) = sendMessage(ArrangementController.PlayheadPositionChange(beat))
-			override fun onRangeChange(range: Pair<Float, Float>?) = sendMessage(ArrangementController.RangeSelectionChange(range))
+			override fun onRangeChange(range: Pair<Float, Float>) = sendMessage(ArrangementController.RangeSelectionChange(range))
 		}
 	}
 
