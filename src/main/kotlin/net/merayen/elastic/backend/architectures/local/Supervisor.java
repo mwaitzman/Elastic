@@ -166,8 +166,6 @@ class Supervisor {
 
 		wireUp(to_wire_up);
 		initProcessors(to_wire_up);
-
-		//System.out.println("Active sessions: " + processor_list.getSessions().size());
 	}
 
 	/**

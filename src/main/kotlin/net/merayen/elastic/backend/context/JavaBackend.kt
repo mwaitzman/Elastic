@@ -40,6 +40,10 @@ class JavaBackend(projectPath: String) : BackendModule(projectPath) {
 	var environment: Environment = createEnvironment()
 	private var backendSupervisor = createLogicNodeBackend()
 
+	init {
+		name = "JavaBackend"
+	}
+
 	private fun createEnvironment(): Environment {
 		val mixer = Mixer()
 		val sync = Synchronization(mixer, object : Synchronization.Handler {
