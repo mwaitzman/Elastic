@@ -58,7 +58,7 @@ abstract class AbstractDevice(val id: String // an unique ID for a device. Shoul
 		val samples_processed = AverageStat<Int>(100)
 
 		/**
-		 * Everytime the buffer is empty upon writing or reading.
+		 * Every time the buffer is empty upon writing or reading.
 		 */
 		var hunger: Int = 0
 

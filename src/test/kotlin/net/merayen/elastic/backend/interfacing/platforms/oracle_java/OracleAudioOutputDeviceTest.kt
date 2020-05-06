@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.math.PI
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class OracleAudioOutputDeviceTest {
@@ -41,33 +42,33 @@ class OracleAudioOutputDeviceTest {
 		outputDevice.begin()
 
 		var pos = 0
-		//while(true) {
-			for (chunk in 4 until 5) {
-				val audio = FloatArray(2.0.pow(8 + 4 - chunk).toInt())
-				println("Audio should sound good with no hick ups, buffer: ${audio.size}")
+		for (chunk in 4 until 5) {
+			val audio = FloatArray(2.0.pow(8 + 4 - chunk).toInt())
+			println("Audio should sound good with no hick ups, buffer: ${audio.size}")
 
-				val t = System.currentTimeMillis() + 2000000
-				var l = System.currentTimeMillis()
-				var samplesSent = 0
-				while (t > System.currentTimeMillis()) {
-					for (i in audio.indices)
-						audio[i] = sin(pos++ / 44100.0 * 1000 * 2 * PI).toFloat() * 0.01f
+			val t = System.currentTimeMillis() + 2000000
+			var l = System.currentTimeMillis()
+			var samplesSent = 0
+			while (t > System.currentTimeMillis()) {
+				for (i in audio.indices)
+					audio[i] = sin(pos++ / 44100.0 * 1000 * 2 * PI).toFloat() * 0.05f
 
-					if (Math.random() > 0.2)
-						Thread.sleep(1)
+				if (Math.random() > 0.1)
+					Thread.sleep(1)
 
-					outputDevice.write(audio)
+				outputDevice.write(audio)
+				//if (outputDevice.available() == 0)
+				//	println("Noes")
 
-					samplesSent += audio.size
+				samplesSent += audio.size
 
-					if (l + 1000 < System.currentTimeMillis()) {
-						println("Samples sent: $samplesSent/s")
-						samplesSent = 0
-						l = System.currentTimeMillis()
-					}
+				if (l + 1000 < System.currentTimeMillis()) {
+					println("Samples sent: $samplesSent/s, hungerness: ${outputDevice.statistics.hunger}, convert time: ${(outputDevice.converting.min / 1000).roundToInt()}/${(outputDevice.converting.avg / 1000).roundToInt()}/${(outputDevice.converting.max / 1000).roundToInt()}")
+					samplesSent = 0
+					l = System.currentTimeMillis()
 				}
 			}
-		//}
+		}
 
 		outputDevice.stop()
 	}
