@@ -99,13 +99,6 @@ abstract class View : UIObject, EasyMotionBranch {
 		}
 	}
 
-	/**
-	 * Adds a task in to the closest ViewportContainer() domain.
-	 */
-	protected fun addTask(task: TaskExecutor.Task) {
-		viewport.viewportContainer.addTask(task)
-	}
-
 	override fun getWidth() = layoutWidth
 	override fun getHeight() = layoutHeight
 }

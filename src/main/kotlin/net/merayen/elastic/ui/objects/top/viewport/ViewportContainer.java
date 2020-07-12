@@ -236,7 +236,7 @@ public class ViewportContainer extends UIObject implements EasyMotionBranch, Tas
 				Control control = new Control((keys) -> {
 					if (paneNumber < viewports.size()) {
 						if (easyMotionMode.equals(EasyMotionMode.ENTER)) {
-							return viewports.get(paneNumber).getCurrentView();
+							return viewports.get(paneNumber).getView();
 						} else if (easyMotionMode.equals(EasyMotionMode.CHANGE)) {
 							System.out.println("ViewportContainer is supposed to show a dialog with alternative view to swap current view with");
 						}

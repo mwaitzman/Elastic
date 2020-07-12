@@ -92,12 +92,12 @@ public class Viewport extends UIObject implements EasyMotionBranch {
 
 	@Override
 	public void onUpdate() {
-		clip.setLayoutWidth(width - BORDER_WIDTH * 2);
-		clip.setLayoutHeight(height - BORDER_WIDTH * 2);
+		clip.setLayoutWidth(width - BORDER_THICKNESS * 2);
+		clip.setLayoutHeight(height - BORDER_THICKNESS * 2);
 
 		if(view != null) {
-			view.setLayoutWidth(width - BORDER_WIDTH * 2);
-			view.setLayoutHeight(height - BORDER_WIDTH * 2);
+			view.setLayoutWidth(width - BORDER_THICKNESS * 2);
+			view.setLayoutHeight(height - BORDER_THICKNESS * 2);
 		}
 
 		drag.width = width - BORDER_THICKNESS * 2;

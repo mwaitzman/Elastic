@@ -63,7 +63,7 @@ class OracleAudioOutputDeviceTest {
 				samplesSent += audio.size
 
 				if (l + 1000 < System.currentTimeMillis()) {
-					println("Samples sent: $samplesSent/s, hungerness: ${outputDevice.statistics.hunger}, convert time: ${(outputDevice.converting.min / 1000).roundToInt()}/${(outputDevice.converting.avg / 1000).roundToInt()}/${(outputDevice.converting.max / 1000).roundToInt()}")
+					//println("Samples sent: $samplesSent/s, hungerness: ${outputDevice.statistics.hunger}, convert time: ${(outputDevice.converting.min / 1000).roundToInt()}/${(outputDevice.converting.avg / 1000).roundToInt()}/${(outputDevice.converting.max / 1000).roundToInt()}")
 					samplesSent = 0
 					l = System.currentTimeMillis()
 				}
