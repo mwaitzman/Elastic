@@ -9,7 +9,7 @@ public class Layout {
 		float abs_x, abs_y, abs_width, abs_height; // Calculated values
 	}
 
-	private class UserObject extends Item {
+	private static class UserObject extends Item {
 		private Object obj;
 
 		private UserObject(Object obj) {
@@ -21,7 +21,7 @@ public class Layout {
 		}
 	}
 
-	private class Ruler extends Item {
+	private static class Ruler extends Item {
 		private boolean vertical; // false = horizontal, true = vertical
 		private List<Item> items = new ArrayList<>();
 
@@ -201,7 +201,7 @@ public class Layout {
 
 			resize(ruler, size);
 		} else { // Just resize our item
-			resize(getUserObject(obj), size);
+			resize(userobj, size);
 		}
 	}
 

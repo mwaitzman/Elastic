@@ -3,6 +3,7 @@ package net.merayen.elastic.backend.architectures.local
 /**
  * LNodes implementing GroupLNode are capable to hold other children nodes.
  * Those children nodes can get data from LNodes implementing GroupLNode, by using getParent()
+ * TODO tissue:dsp_group_node_events Support events from top nodes about e.g current BPM, playhead position at sample X etc
  */
 interface GroupLNode {
 	/**

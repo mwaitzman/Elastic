@@ -104,8 +104,8 @@ public class OracleAudioOutputDevice extends AudioOutputDevice {
 		long t = System.currentTimeMillis();
 
 		line.write(buffer, 0, buffer.length);
-		if (available == 0)
-			line.write(buffer, 0, buffer.length);
+		//if (available == 0)
+		//	line.write(buffer, 0, buffer.length);
 
 		last_write = System.currentTimeMillis();
 		getStatistics().getBuffer_time().add((System.currentTimeMillis() - t) / 1000f);
@@ -115,8 +115,8 @@ public class OracleAudioOutputDevice extends AudioOutputDevice {
 		available = available();
 		getStatistics().getAvailable_after().add(available);
 
-		//if(available == 0)
-		//	getStatistics().setHunger(getStatistics().getHunger() + 1);
+		if(available == 0)
+			getStatistics().setHunger(getStatistics().getHunger() + 1);
 	}
 
 	@Override

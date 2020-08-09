@@ -8,14 +8,14 @@ import java.util.List;
 
 class PolySessions {
 	static class Session {
-		final int session_id;
+		final int id;
 		final short tangent;
 		final Outlet input;
 		final OutputInterfaceNode[] outnodes;
 		boolean active = true;
 
 		private Session(int session_id, short tangent, Outlet input, OutputInterfaceNode[] outnodes) {
-			this.session_id = session_id;
+			this.id = session_id;
 			this.tangent = tangent;
 			this.input = input;
 			this.outnodes = outnodes;

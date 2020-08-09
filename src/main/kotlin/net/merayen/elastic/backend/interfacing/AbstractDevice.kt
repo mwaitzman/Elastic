@@ -1,6 +1,7 @@
 package net.merayen.elastic.backend.interfacing
 
 import net.merayen.elastic.util.AverageStat
+import kotlin.math.roundToInt
 
 /**
  * Represents a hardware device, like a audio interface, midi keyboard etc.
@@ -9,6 +10,7 @@ abstract class AbstractDevice(val id: String // an unique ID for a device. Shoul
 							  , val description: String, protected var vendor: String) {
 
 	val statistics = Statistics(id)
+
 	/**
 	 * Returns true if the device is connected and working. Returns false if it has been disconnected.
 	 * A DeviceDescriptor can not be reused.
@@ -63,7 +65,16 @@ abstract class AbstractDevice(val id: String // an unique ID for a device. Shoul
 		var hunger: Int = 0
 
 		fun describe(): String {
-			return String.format("buffer_time=%s, outside_buffer_time=%s, available_before=%s available_after=%s, samples_processed=%s, hunger=%d", buffer_time.info(), outside_buffer_time.info(), available_before.info(), available_after.info(), samples_processed.info(), hunger)
+			val formatter = AverageStat.Formatter { "${(it * 1000).roundToInt()}ms" }
+
+			return String.format("Statistics:\n\tbuffer_time=%s\n\toutside_buffer_time=%s\n\tavailable_before=%s\n\tavailable_after=%s\n\tsamples_processed=%s\n\thunger=%d",
+					buffer_time.info(formatter),
+					outside_buffer_time.info(formatter),
+					available_before.info(),
+					available_after.info(),
+					samples_processed.info(),
+					hunger
+			)
 		}
 	}
 
