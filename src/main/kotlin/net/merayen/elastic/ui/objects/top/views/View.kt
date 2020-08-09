@@ -53,7 +53,7 @@ abstract class View : UIObject, EasyMotionBranch {
 	}
 
 	/**
-	 * Swap this view with another View.
+	 * Swap this view with another View. Happens later.
 	 */
 	fun <T : View> swap(cls: KClass<out T>): T {
 		val newView: T
@@ -66,7 +66,11 @@ abstract class View : UIObject, EasyMotionBranch {
 			throw RuntimeException(e)
 		}
 
-		search.parentByType(ViewportContainer::class.java)!!.swapView(this, newView)
+		val viewportContainer = search.parentByType(ViewportContainer::class.java)
+
+		viewportContainer ?: throw RuntimeException("View has not been attached to a ViewportContainer yet")
+
+		viewportContainer.swapView(this, newView)
 
 		return newView
 	}
@@ -94,16 +98,6 @@ abstract class View : UIObject, EasyMotionBranch {
 			isFocused = event.hitDepth(this) > -1
 		}
 	}
-
-	/*val properties: HashMap<String, Any>
-		get() {
-			val group = search.parentByType(net.merayen.elastic.uinodes.list.group_1.UI::class.java) ?: throw RuntimeException("group-node not found. Can not retrieve data")
-			val parameters = group.parameters
-
-			val views = parameters.getOrPut("ui.java.views") {HashMap<String, HashMap<String, Any>>()} as HashMap<String, HashMap<String, Any>>
-
-			return views.getOrPut(id) {HashMap()}
-		}*/
 
 	override fun getWidth() = layoutWidth
 	override fun getHeight() = layoutHeight

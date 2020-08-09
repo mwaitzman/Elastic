@@ -49,12 +49,12 @@ public class ViewportContainer extends UIObject implements EasyMotionBranch, Tas
 	 * Swaps a view with another one.
 	 */
 	public void swapView(View old, View view) {
-		Viewport viewport = viewports.stream().filter((x) -> x.view == old).findFirst().get();
+		Viewport viewport = viewports.stream().filter((x) -> x.getView() == old).findFirst().get();
 
 		if (viewport == null)
 			throw new RuntimeException("Old view does not exist");
 
-		viewport.view = view;
+		viewport.setView(view);
 	}
 
 	public List<Viewport> getViewports() {
@@ -183,15 +183,15 @@ public class ViewportContainer extends UIObject implements EasyMotionBranch, Tas
 		}
 
 		omgJava omgJava = new omgJava();
+		System.out.println("createViewport called");
 
 		ViewportContainer self = this;
 
 		Viewport v = new Viewport(new Viewport.Handler() {
 			@Override
 			public void onNewViewport(boolean vertical) { // TODO refuse creation if we are too small
-				Viewport v = createViewport(omgJava.newViewport.view.cloneView());
-
-				if (vertical) {
+				Viewport v = createViewport(omgJava.newViewport.getView().cloneView());
+				if(vertical) {
 					layout.splitVertical(omgJava.newViewport, v);
 				} else { // Horizontal
 					layout.splitHorizontal(omgJava.newViewport, v);
@@ -218,7 +218,7 @@ public class ViewportContainer extends UIObject implements EasyMotionBranch, Tas
 			}
 		});
 
-		v.view = view;
+		v.setView(view);
 		add(v);
 		viewports.add(v);
 		omgJava.newViewport = v; // Hack
@@ -238,7 +238,7 @@ public class ViewportContainer extends UIObject implements EasyMotionBranch, Tas
 				Control control = new Control((keys) -> {
 					if (paneNumber < viewports.size()) {
 						if (easyMotionMode.equals(EasyMotionMode.ENTER)) {
-							return viewports.get(paneNumber).getCurrentView();
+							return viewports.get(paneNumber).getView();
 						} else if (easyMotionMode.equals(EasyMotionMode.CHANGE)) {
 							System.out.println("ViewportContainer is supposed to show a dialog with alternative view to swap current view with");
 						}
