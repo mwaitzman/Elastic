@@ -9,6 +9,7 @@ import net.merayen.elastic.backend.midi.MidiControllers;
 import net.merayen.elastic.backend.midi.MidiStatuses;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,32 +192,45 @@ public class LProcessor extends LocalProcessor {
 			return true; // No out-nodes. Nothing to do
 		}
 
-		// Ensure that all out-nodes has something
-		for (Session session : sessions.getSessions()) {
-			for (OutputInterfaceNode oin : outputNodes) {
-				Inlet inlet = oin.getOutputInlet(session.session_id);
-				if (inlet instanceof AudioInlet) {
-					if (!inlet.available())
-						return false; // One of the out-nodes has not finished processing yet
+		if (output != null) {  // TODO optimizing this might have made it worse?
+			//Map<Session, List<OutputInterfaceNode>> sessionOutputInlets = new HashMap<>();
+			//Map<Session, Map<OutputInterfaceNode, List<AudioOutlet>>> cache = new HashMap<>();
+			//Map<OutputInterfaceNode, Map<Session, AudioOutlet>> cache = new HashMap<>();
+			//Map<OutputInterfaceNode, AudioOutlet> outputInterfaceNodeInlets = new HashMap<>(); // FIXME wrong link
+			Map<Session, Map<OutputInterfaceNode, AudioOutlet>> cache = new HashMap<>();
+
+			for (Session session : sessions.getSessions()) { // Ensure that all out-nodes has something
+				Map<OutputInterfaceNode, AudioOutlet> cache1 = new HashMap<>();
+				cache.put(session, cache1);
+
+				for (OutputInterfaceNode oin : session.outnodes) {
+
+					Inlet inlet = oin.getOutputInlet(session.id); // TODO too hot! Called like 733'000 times when profiler ran for 10 seconds!
+					if (inlet instanceof AudioInlet) {
+						if (!inlet.available())
+							return false; // One of the out-nodes has not finished processing yet
+
+						cache1.put(oin, (AudioOutlet)inlet.outlet);
+					}
 				}
 			}
-		}
 
-		if (output != null) {
 			float[][] out = output.audio;
 
-			for (Session session : sessions.getSessions()) {
-				for (OutputInterfaceNode oui : session.outnodes) {
-					float[] channelDistribution = oui.getChannelDistribution(session.session_id);
-					Outlet outlet = oui.getOutputInlet(session.session_id).outlet;
-					if (outlet instanceof AudioOutlet) {
-						float[] in = ((AudioOutlet) outlet).audio[0];
+			for (Map.Entry<Session, Map<OutputInterfaceNode, AudioOutlet>> x : cache.entrySet()) {
+				Session session = x.getKey();
+				for (Map.Entry<OutputInterfaceNode, AudioOutlet> y : x.getValue().entrySet()) {
+					int sessionId = session.id;
+					OutputInterfaceNode oin = y.getKey();
 
-						for (int channel = 0; channel < channelDistribution.length; channel++)
-							if (channelDistribution[channel] != 0)
-								for (int i = 0; i < buffer_size; i++)
-									out[channel][i] += in[i] * channelDistribution[channel];
-					}
+					float[] channelDistribution = oin.getChannelDistribution(sessionId);
+					AudioOutlet outlet = (AudioOutlet)oin.getOutputInlet(sessionId).outlet;
+					float[] in = outlet.audio[0];
+
+					for (int channel = 0; channel < channelDistribution.length; channel++)
+						if (channelDistribution[channel] != 0)
+							for (int i = 0; i < buffer_size; i++)
+								out[channel][i] += in[i] * channelDistribution[channel];
 				}
 			}
 			output.push();
@@ -230,7 +244,7 @@ public class LProcessor extends LocalProcessor {
 
 		for (Session s : sessions.getSessions()) {
 			for (OutputInterfaceNode outnode : s.outnodes) {
-				if (outnode.getOutputInlet(s.session_id) instanceof AudioInlet)
+				if (outnode.getOutputInlet(s.id) instanceof AudioInlet)
 					outnodes.add(outnode);
 			}
 		}
@@ -254,7 +268,7 @@ public class LProcessor extends LocalProcessor {
 			boolean active = false;
 
 			for (LocalNode ln : lnodes) {
-				LocalProcessor lp = ln.getProcessor(session.session_id);
+				LocalProcessor lp = ln.getProcessor(session.id);
 				if (lp instanceof SessionKeeper) {
 					if (((SessionKeeper) lp).isKeepingSessionAlive()) {
 						active = true;
@@ -265,7 +279,7 @@ public class LProcessor extends LocalProcessor {
 
 			if (!active) {
 				sessions.removeSession(session);
-				removeSession(session.session_id);
+				removeSession(session.id);
 				//System.out.println("Poly is killing session " + session.session_id);
 			}
 		}

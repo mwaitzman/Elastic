@@ -16,6 +16,7 @@ import java.util.*;
 /**
  * For now, the Supervisor does not support adding and removal of nodes/ports, connections etc. You will need to clear and restart.
  * TODO this class does 2 things now. Should perhaps only schedule and run the nodes, as it is a supervisor.
+ * TODO tissue:node_execution_planner Implement a better planner that launches the nodes in the best way possible
  */
 class Supervisor {
 	private static final String CLASS_PATH = "net.merayen.elastic.backend.architectures.local.nodes.%s_%d.LNode";
@@ -97,7 +98,7 @@ class Supervisor {
 	void clear() {
 		dead = true;
 
-		for(int session_id : new ArrayList<>(processor_list.getSessions()))
+		for(int session_id : new ArrayList<>(processor_list.getSessionIds()))
 			removeSession(session_id);
 
 		processor_list.clear();
@@ -153,8 +154,6 @@ class Supervisor {
 			for(LocalNode ln : lnodes)
 				if(processor_list.getSessions(ln).size() >= 128)
 					throw new SpawnLimitException();
-
-		processor_list.addSession(session_id);
 
 		List<LocalProcessor> to_wire_up = new ArrayList<>();
 		for(LocalNode ln : lnodes) {
