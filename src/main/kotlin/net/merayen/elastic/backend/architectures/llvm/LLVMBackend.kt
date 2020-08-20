@@ -19,7 +19,7 @@ class LLVMBackend(private val code: String) {
 		with(ProcessBuilder(listOf("clang-10", path, "-o", outputPath))) {
 			redirectOutput(ProcessBuilder.Redirect.INHERIT)
 			redirectError(ProcessBuilder.Redirect.INHERIT)
-			start()
+			start().waitFor()
 		}
 
 		process = with(ProcessBuilder(listOf(outputPath, outputPath))) {
