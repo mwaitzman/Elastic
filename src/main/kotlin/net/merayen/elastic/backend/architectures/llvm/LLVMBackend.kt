@@ -4,10 +4,10 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 
-class LLVMBackend(private val code: String) {
+class LLVMBackend(code: String) {
 	private val process: Process
 
-	var inputStream: InputStream
+	val inputStream: InputStream
 	val outputStream: OutputStream
 	val errorStream: InputStream
 
