@@ -2,7 +2,6 @@ package net.merayen.elastic.backend.architectures.llvm
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 internal class LLVMCommunicatorTest {
@@ -58,14 +57,7 @@ internal class LLVMCommunicatorTest {
 
 		val com = LLVMCommunicator(backend)
 
-		com.send(
-			object : Message(3) {
-				init {
-					for (i in 0 until 3)
-						data.put((10 + i).toByte())
-				}
-			}
-		)
+		com.send(byteArrayOf(10, 11, 12))
 
 		val result = com.poll()
 

@@ -7,16 +7,21 @@ class LLVMCommunicator(private val backend: LLVMBackend) { // Is this bullshit?
 	@Volatile
 	var running = true
 
-	private val inputBuffer = ByteBuffer.allocate(4)
+	private val sizeBuffer = ByteBuffer.allocate(4)
 
 	init {
-		inputBuffer.order(ByteOrder.nativeOrder())
+		sizeBuffer.order(ByteOrder.nativeOrder())
 	}
 
 	@Synchronized
-	fun send(message: Message) {
-		val arr = message.data.array()
+	fun send(arr: ByteArray) {
+		sizeBuffer.rewind()
+		sizeBuffer.putInt(arr.size)
+		sizeBuffer.rewind()
+
+		backend.outputStream.write(sizeBuffer.array())
 		backend.outputStream.write(arr)
+
 		backend.outputStream.flush()
 	}
 
@@ -29,39 +34,23 @@ class LLVMCommunicator(private val backend: LLVMBackend) { // Is this bullshit?
 	 */
 	@Synchronized
 	fun poll(): ByteBuffer {
-
 		// Read an int for the package size
-		if (inputBuffer.limit() < 4)
-			inputBuffer.limit(4)
-
-		backend.inputStream.read(inputBuffer.array());
-		inputBuffer.rewind()
-
-		val size = inputBuffer.int
+		sizeBuffer.rewind()
+		backend.inputStream.read(sizeBuffer.array());
+		val size = sizeBuffer.int
 
 		if (size > 1073741824)
-			throw RuntimeException("Message received from subprocess is larger than 1GB!")
+			throw RuntimeException("Message received from subprocess is larger than 1MB!")
 
 		if (size < 0)
 			throw RuntimeException("Negative size in package from subprocess. Data corrupt?")
 
-		println("Resizing inputBuffer to $size")
-		inputBuffer.limit(size)
-
-		inputBuffer.rewind()
+		val inputBuffer = ByteBuffer.allocate(size)
+		inputBuffer.order(ByteOrder.nativeOrder())
 
 		// Read the payload
 		backend.inputStream.read(inputBuffer.array())
 
 		return inputBuffer
-	}
-}
-
-open class Message(val size: Int) {
-	val data: ByteBuffer = ByteBuffer.allocate(Int.SIZE_BYTES + size)
-
-	init {
-		data.order(ByteOrder.nativeOrder())
-		data.putInt(size)
 	}
 }
