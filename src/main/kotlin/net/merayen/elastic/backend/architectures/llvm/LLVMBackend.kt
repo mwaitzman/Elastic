@@ -28,6 +28,13 @@ class LLVMBackend(code: String) {
 			start()
 		}
 
+		// Wait for "HELLO"-message
+		val hello = ByteArray(5)
+		process.inputStream.read(hello)
+
+		if (!hello.contentEquals(byteArrayOf('H'.toByte(),'E'.toByte(),'L'.toByte(),'L'.toByte(),'O'.toByte())))
+			throw RuntimeException("Subprocess did not say hello to us in the manner we wanted it to: Got ${String(hello)}");
+
 		inputStream = process.inputStream
 		outputStream = process.outputStream
 		errorStream = process.errorStream
