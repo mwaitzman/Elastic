@@ -7,16 +7,25 @@ class LLVMCommunicator(private val backend: LLVMBackend, private val handler: Ha
 		fun onReceive(data: MessagePackage)
 	}
 
+	@Volatile
+	var running = true
+
 	init {
 		try {
-			var incoming: ByteArray? = null
-			while (true) {
-				TODO()
+			val incoming = ByteArray(1024)
+			while (running) {
+				if (backend.inputStream.available() > 0) {
+					val read = backend.inputStream.read(incoming)
+					if (read > 0) {
+
+					}
+					Thread.sleep(10) // TODO don't do this? Possible to "select"?
+				}
 			}
 		} catch (exception: java.net.UnknownHostException) {
-			throw RuntimeException(exception);
+			throw RuntimeException(exception)
 		} catch (exception: java.io.IOException) {
-			throw RuntimeException(exception);
+			throw RuntimeException(exception)
 		}
 	}
 
@@ -24,34 +33,49 @@ class LLVMCommunicator(private val backend: LLVMBackend, private val handler: Ha
 	fun send(data: MessagePackage) {
 		backend.outputStream.write(data.dump())
 	}
+
+	/**
+	 * Waits for receiving a complete MessagePacket from the subprocess.
+	 */
+	fun poll(): MessagePackage {
+
+		val incoming = ByteArray(1024)
+		backend.inputStream.read(incoming)
+	}
 }
 
-open class Message {
-	var data = ByteArray(0)
+open class Message(val size: Int) {
+	val data: ByteBuffer = ByteBuffer.allocate(Int.SIZE_BYTES + size)
 
-	fun dump(): ByteArray {
-		val buffer = ByteBuffer.allocate(Int.SIZE_BYTES + data.size)
-
-		buffer.putInt(data.size)
-		buffer.put(data)
-		buffer.flip()
-
-		return buffer.array()
+	init {
+		data.putInt(size)
 	}
 }
 
 class MessagePackage(val messages: List<Message> = ArrayList()) {
 	fun dump(): ByteArray {
-		val result = messages.map { it.dump() }
-		val totalSize: Int = result.sumBy { it.size }
+		for (x in messages) { // Prepare and validate messages
+			x.data.rewind()
+
+			if (x.data.limit() < 4)
+				throw RuntimeException("Message ${x::class.simpleName} must have more than 4 bytes of data")
+
+			val size = x.data.int
+			if (x.data.limit() - 4 != size)
+				throw RuntimeException("Message ${x::class.simpleName} has wrong size set (header says $size but is ${x.data.limit()})")
+
+			x.data.rewind()
+		}
+
+		val totalSize: Int = messages.sumBy { it.data.limit() }
 
 		val buffer = ByteBuffer.allocate(Int.SIZE_BYTES + totalSize)
 		buffer.putInt(totalSize)
 
-		for (packet in result)
-			buffer.put(packet)
+		for (message in messages)
+			buffer.put(message.data)
 
-		buffer.flip()
+		buffer.rewind()
 		return buffer.array()
 	}
 }

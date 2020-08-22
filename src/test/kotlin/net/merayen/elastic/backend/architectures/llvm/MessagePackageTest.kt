@@ -2,16 +2,15 @@ package net.merayen.elastic.backend.architectures.llvm
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.nio.ByteBuffer
 
 internal class MessagePackageTest {
 	@Test
 	fun `message package dump`() {
-		val data = MessagePackage(listOf(object : Message() {
+		val data = MessagePackage(listOf(object : Message(10) {
 			init {
-				data = ByteArray(10)
-
 				for (i in 0 until 10)
-					data[i] = i.toByte()
+					data.put(i.toByte())
 			}
 		})).dump()
 

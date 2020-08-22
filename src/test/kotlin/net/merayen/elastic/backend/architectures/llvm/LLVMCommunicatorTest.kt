@@ -2,6 +2,7 @@ package net.merayen.elastic.backend.architectures.llvm
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.nio.ByteBuffer
 
 internal class LLVMCommunicatorTest {
 	@Test
@@ -29,11 +30,10 @@ internal class LLVMCommunicatorTest {
 		})
 
 		com.send(MessagePackage(listOf(
-			object : Message() {
+			object : Message(3) {
 				init {
-					data = ByteArray(3)
-					for (i in data.indices)
-						data[i] = i.toByte()
+					for (i in 0 until 3)
+						data.put(i.toByte())
 				}
 			}
 		)))
