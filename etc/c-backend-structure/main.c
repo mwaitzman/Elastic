@@ -50,6 +50,10 @@ struct Data {
 	struct Node_out1234 out1234;
 } *data;
 
+struct OutData {
+
+};
+
 // Node methods
 void Node_top1234_init() {
 	
@@ -121,6 +125,19 @@ void process() {
 				}
 			}
 		}
+	}
+
+	// Send processed data
+	// TODO how should we allocate? One huge array that the nodes just add to?
+	// Top-node
+	{}
+
+	// Value-node
+	{}
+
+	//
+	{
+		
 	}
 }
 
