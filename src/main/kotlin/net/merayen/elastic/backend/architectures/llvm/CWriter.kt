@@ -2,6 +2,13 @@ package net.merayen.elastic.backend.architectures.llvm
 
 interface CWriter {
 	/**
+	 * Define the content in the struct for this node.
+	 *
+	 * This is where it stores and retrieves its data.
+	 */
+	fun onStruct(): String
+
+	/**
 	 * Initializing of the node here.
 	 * Only happens once for the lifetime of the process.
 	 *

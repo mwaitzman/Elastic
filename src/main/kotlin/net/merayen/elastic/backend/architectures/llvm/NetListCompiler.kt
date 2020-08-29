@@ -12,6 +12,8 @@ class NetListCompiler(private val netList: NetList, private val cnodes: Map<Stri
 	private val nodeProperties = NodeProperties(netList)
 
 	private class NodeCompileResult(
+		val node: Node,
+		val struct: String,
 		val nodeInit: String,
 		val nodeProcess: String,
 		val instanceProcess: String,
@@ -54,6 +56,8 @@ class NetListCompiler(private val netList: NetList, private val cnodes: Map<Stri
 		// TODO figure out which nodes are connected to our inputs and outputs. Make lambda of it
 
 		return NodeCompileResult(
+			node = node,
+			struct = cwriter.onStruct(),
 			nodeInit = cwriter.onNodeInit(nodeData),
 			nodeProcess = cwriter.onNodeProcess(nodeData, parameters),
 			instanceProcess = cwriter.onInstanceProcess(parameters, nodeData, instanceData, { name -> "data->that_other_node.outputs.some_port" }, { name -> "data->node_${node.id}.outputs.$name" }),
@@ -67,19 +71,39 @@ class NetListCompiler(private val netList: NetList, private val cnodes: Map<Stri
 	 */
 	fun getCode(): String {
 		return """
-			#include <stdio.h>
-			#include <math.h>
-			
-			void init_nodes() {
-				${nodeCompileResults.joinToString("\n") { it.nodeInit }}
+		#include <stdio.h>
+		#include <math.h>
+		
+		#define MAX_INSTANCE_COUNT 256
+
+
+		void wait_for_input() { // Wait for data from the parent process pipe
+
+		}
+
+		void init_nodes() {
+			${nodeCompileResults.joinToString("\n") { it.nodeInit }}
+		}
+
+		void process() {
+			// NodeProcess
+			${nodeCompileResults.joinToString("\n\t\t") { """
+				{ // Node ${nodeProperties.getName(it.node)} (${it.node.id})
+					${it.nodeProcess.replace("\n", "\n" + ("\t".repeat(it.level + 1)))}
+					
+					// Instances of the node
+					for (int instance_${it.node.id}_index = 0; instance_${it.node.id}_index < MAX_INSTANCE_COUNT; instance_${it.node.id}_index++)
+						// TODO skip those who are 0
+						${it.instanceProcess.replace("\n", "\n" + ("\t".repeat(it.level + 6)))}
+				}
+			""" }}
 			}
-			
-			void process() {
-				${nodeCompileResults.joinToString("\n") { it.nodeProcess.replace("\n", "\n" + ("\t".repeat(it.level + 4))) }}
-				
-				${nodeCompileResults.joinToString("\n") { it.instanceProcess.replace("\n", "\n" + ("\t".repeat(it.level + 4))) }}
-				
-				${nodeCompileResults.joinToString("\n") { it.nodeCollect.replace("\n", "\n" + ("\t".repeat(it.level + 4))) }
+		}
+
+		int main() {
+			init_nodes();
+			for (int i = 0; i < 2; i++)
+				process();
 		}
 		""".trimIndent()
 	}
