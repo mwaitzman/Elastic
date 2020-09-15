@@ -90,7 +90,7 @@ class LogicNode : BaseLogicNode(), GroupLogicNode {
 	}
 
 	override fun onFinishFrame(data: OutputFrameData?) {
-		data as Group1OutputFrameData
+		data as? Group1OutputFrameData ?: return
 
 		if (nextReportToUI < System.currentTimeMillis()) {
 			nextReportToUI = System.currentTimeMillis() + 50
