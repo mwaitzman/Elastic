@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test
 import java.nio.ByteOrder
 
 internal class LLVMCommunicatorTest {
-
-	val bigEndian = ByteOrder.nativeOrder()
+	val endian = ByteOrder.nativeOrder()
 
 	@Test
 	fun `spawn and communicate with process`() {
@@ -14,7 +13,7 @@ internal class LLVMCommunicatorTest {
 			#include <stdio.h>
 			#include <stdlib.h>
 			#include <string.h>
-			
+
 			int main() {
 				FILE *result = freopen(NULL, "rb", stdin);
 				if (result == NULL)
@@ -34,7 +33,7 @@ internal class LLVMCommunicatorTest {
 				fread(buf, 1, 4 + 3, stdin);
 
 				char* ut = malloc(4 + 4);
-				
+
 				(*ut) = (int)4;
 
 				if (buf[4] == 10 && buf[5] == 11 && buf[6] == 12) {

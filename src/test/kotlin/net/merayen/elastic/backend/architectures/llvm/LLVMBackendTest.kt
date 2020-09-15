@@ -5,11 +5,12 @@ import org.junit.jupiter.api.Test
 
 internal class LLVMBackendTest {
 	@Test
-	fun `check if LLVM compiles and runs`() {
-		val expectedString = "Hi from LLVMBackendTest from C-code!";
+	fun `check if LLVM compiles and runs`() { // Test is outdated. Fix!
+		val expectedString = "Hi from LLVMBackendTest from C-code!"
+
 		val llvm = LLVMBackend("""
 			#include <stdio.h>
-			
+
 			int main() {
 				printf("$expectedString");
 				return 0;
