@@ -108,8 +108,8 @@ public class Viewport extends UIObject implements EasyMotionBranch {
 		view = newView;
 
 		clip.removeAll();
-		clip.add(drag);
 		clip.add(newView);
+		clip.add(drag);
 	}
 
 	public View getView() {
