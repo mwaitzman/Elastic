@@ -3,10 +3,10 @@ package net.merayen.elastic.backend.architectures.llvm
 import net.merayen.elastic.backend.architectures.llvm.nodes.*
 
 val nodes = mapOf(
-	"group" to GroupCNode::class,
-	"value" to ValueCNode::class,
-	"elapsed" to ElapsedCNode::class,
-	"multiply" to MultiplyCNode::class,
-	"sine" to SineCNode::class,
-	"out" to OutCNode::class
+	"group" to GroupTranspilerNode::class,
+	"value" to ValueTranspilerNode::class,
+	"elapsed" to ElapsedTranspilerNode::class,
+	"multiply" to MultiplyTranspilerNode::class,
+	"sine" to SineTranspilerNode::class,
+	"out" to OutTranspilerNode::class
 )

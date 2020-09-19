@@ -1,4 +1,4 @@
 package net.merayen.elastic.backend.architectures.llvm.nodes
 
-class SineCNode(env: Env) : CNode(env) {
+class OutTranspilerNode(env: Env) : TranspilerNode(env) {
 }

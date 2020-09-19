@@ -1,3 +1,3 @@
 package net.merayen.elastic.backend.architectures.llvm.nodes
 
-class MultiplyCNode(env: Env) : CNode(env) {}
+class ElapsedTranspilerNode(env: Env) : TranspilerNode(env) {}

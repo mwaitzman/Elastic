@@ -5,7 +5,7 @@ import net.merayen.elastic.backend.architectures.llvm.CWriter
 /**
  * A node that adds two inputs.
  */
-class ValueCNode(env: Env) : CNode(env) {
+class ValueTranspilerNode(env: Env) : TranspilerNode(env) {
 	init {
 		cwriter = object : CWriter {
 			override fun onStruct() = """

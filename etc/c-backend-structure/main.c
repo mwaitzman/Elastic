@@ -83,7 +83,12 @@ void wait_next_frame() {
 
 }
 
-void process() {
+/*
+
+A process block that can be run by 1 thread. It 
+
+*/
+void process0() {
 	// Top-node
 	{
 		int process_count = data->top1234.process_count;
@@ -141,6 +146,13 @@ void process() {
 	}
 }
 
+/*
+Another process unit.
+*/
+void process1() {
+	
+}
+
 int main() {
 	data = calloc(1, sizeof(struct Data));
 
@@ -148,7 +160,7 @@ int main() {
 
 	for (frame_number = 0; frame_number < 1000000L; frame_number++) {
 		wait_next_frame();
-		process();
+		process0();
 	}
 
 	return 0;

@@ -2,7 +2,7 @@ package net.merayen.elastic.backend.architectures.llvm.nodes
 
 import net.merayen.elastic.backend.architectures.llvm.CWriter
 
-abstract class CNode(env: Env) {
+abstract class TranspilerNode(env: Env) {
 	class Env(
 		val nodeId: String,
 		val sampleRate: Int,
