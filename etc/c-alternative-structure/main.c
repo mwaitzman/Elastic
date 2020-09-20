@@ -10,8 +10,12 @@
 #define THREAD_COUNT 4
 
 struct {
-	volatile bool working;
-} thread[THREAD_COUNT];
+	pthread_t thread;
+	pthread_cond_t cond;
+	pthread_mutex_t lock;
+	void *func; // Method to run
+	int session; // Session id for the node
+} threads[THREAD_COUNT];
 
 
 struct Node_poly1 { // poly-node
@@ -66,11 +70,34 @@ void node_poly1() {
 
 
 // Control methods
+void *thread_runner(void *arg) { // Runs threads
+	int thread_index = *((int *)arg);
+	printf("Thread %i launched\n", thread_index);
+	pthread_cond_wait(&threads[thread_index].cond, &threads[thread_index].lock);
+	printf("Thread %i has gotten work\n", thread_index);
+	return NULL;
+}
+
 void init_threads() {
-	pthread_t *thread = calloc(THREAD_COUNT, sizeof(pthread_t));
+	// Set up conditions, that we use to make the threads sleep
+	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 	for (int i = 0; i < THREAD_COUNT; i++) {
-		pthread_create(thread[i], NULL, );
+		memcpy(&cond, &threads[THREAD_COUNT].cond, sizeof(pthread_cond_t));
 	}
+
+	pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		memcpy(&lock, &threads[THREAD_COUNT].lock, sizeof(pthread_mutex_t));
+	}
+
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		int thread_index = i;
+		pthread_create(&threads[i].thread, NULL, thread_runner, &thread_index);
+	}
+}
+
+void init_stdinout() { // Initializes communication using stdin and stdout
+
 }
 
 void wait_for_data() {

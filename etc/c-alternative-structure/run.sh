@@ -1,2 +1,2 @@
-gcc $1 -Wall -lpthread && ./a.out
+gcc $1 -Wall -lpthread && time ./a.out
 
