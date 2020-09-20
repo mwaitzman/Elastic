@@ -11,10 +11,11 @@
 
 struct {
 	pthread_t thread;
+	pthread_cond_t cond_started; // When the thread has finalized initialization
 	pthread_cond_t cond;
 	pthread_mutex_t lock;
-	void *func; // Method to run
-	int session; // Session id for the node
+	volatile void *func; // Method to run
+	volatile int session; // Session id for the node
 } threads[THREAD_COUNT];
 
 
@@ -70,29 +71,58 @@ void node_poly1() {
 
 
 // Control methods
-void *thread_runner(void *arg) { // Runs threads
-	int thread_index = *((int *)arg);
+void *thread_runner(void *args) { // Runs threads
+	int thread_index = *((int *)args);
 	printf("Thread %i launched\n", thread_index);
-	pthread_cond_wait(&threads[thread_index].cond, &threads[thread_index].lock);
-	printf("Thread %i has gotten work\n", thread_index);
+	pthread_cond_broadcast(threads[thread_index].cond_start);
+	while (true) {
+		pthread_cond_wait(&threads[thread_index].cond, &threads[thread_index].lock);
+		if (threads[thread_index].func == 0) {
+			fprintf(stderr, "No job set\n");
+			exit(EXIT_FAILURE); // TODO is this okay inside a thread...? What will happen?
+		}
+		printf("Thread %i has gotten work\n", thread_index);
+	}
+
 	return NULL;
 }
 
 void init_threads() {
+	// Clear memory
+	printf("Hohho: %lu\n", sizeof(threads));
+	memset(threads, 0, sizeof(threads));
+
 	// Set up conditions, that we use to make the threads sleep
 	pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 	for (int i = 0; i < THREAD_COUNT; i++) {
-		memcpy(&cond, &threads[THREAD_COUNT].cond, sizeof(pthread_cond_t));
+		memcpy(&threads[THREAD_COUNT].cond_started, &cond, sizeof(cond));
+		memcpy(&threads[THREAD_COUNT].cond, &cond, sizeof(cond));
 	}
 
 	pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 	for (int i = 0; i < THREAD_COUNT; i++) {
-		memcpy(&lock, &threads[THREAD_COUNT].lock, sizeof(pthread_mutex_t));
+		memcpy(&threads[THREAD_COUNT].lock, &lock, sizeof(pthread_mutex_t));
 	}
 
 	for (int i = 0; i < THREAD_COUNT; i++) {
-		int thread_index = i;
-		pthread_create(&threads[i].thread, NULL, thread_runner, &thread_index);
+		int *thread_index = malloc(sizeof(int));
+		*thread_index = i;
+		pthread_create(&threads[i].thread, NULL, thread_runner, thread_index);
+	}
+
+	// Wait for all threads to have inited
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		printf("Waiting for thread %i to start\n", i);
+		pthread_cond_wait(&threads[i].cond_started, &threads[i].lock);
+		printf("Thread %i started\n", i);
+	}
+
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		pthread_cond_broadcast(&threads[i].cond);
+	}
+
+	for (int i = 0; i < THREAD_COUNT; i++) {
+		pthread_join(threads[i].thread, NULL);
 	}
 }
 
